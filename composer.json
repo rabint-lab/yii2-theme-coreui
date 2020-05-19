@@ -1,0 +1,17 @@
+{
+  "name": "rabint/theme-coreui",
+  "description": "CoreUi for Yii2",
+  "type": "yii2-extension",
+  "keywords": ["yii", "yii2", "Coreui", "layout"],
+  "require": {
+    "yiisoft/yii2-bootstrap4": "*",
+    "coreui/coreui": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "rabint\\theme\\coreui\\": ""
+     }
+  },
+  "minimum-stability": "stable",
+  "license": "MIT"
+}
