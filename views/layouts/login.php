@@ -10,6 +10,9 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6">
+                <div class="col-md-12">
+                    <?= $this->render('element/_flashes', ['this', $this]) ?>
+                </div>
                 <div class="card mx-4">
                     <div class="card-header">
                         <h1 class="text-center">
