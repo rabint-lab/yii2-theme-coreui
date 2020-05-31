@@ -37,6 +37,12 @@ use yii\helpers\Html;
 
 <?= $content ?>
 
+<?php \yii\bootstrap4\Modal::begin([
+    "id" => "ajaxCrudModal",
+    "footer" => "",
+    "size" => "modal-lg",
+]) ?>
+<?php \yii\bootstrap4\Modal::end(); ?>
 <?php $this->endBody() ?>
 </body>
 </html>
