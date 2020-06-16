@@ -20,6 +20,7 @@ class ThemeAsset extends AssetBundle
     public $js = [
         "dist/popper.min.js",
         "dist/js/coreui.bundle.js",
+        "js/app.js",
     ];
     public $depends = [
         'yii\web\JqueryAsset',
