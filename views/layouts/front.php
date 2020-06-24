@@ -7,16 +7,32 @@ $bundleBaseUrl .= '/dist/';
         <header class="c-header c-header-light c-header-fixed">
             <div>
 
+                <!--                <ul class="c-header-nav d-md-down-none" style="display:none">-->
+                <!--                    <li class="c-header-nav-item px-3">-->
+                <!--                        <a class="c-header-nav-link" href="-->
+                <? //= \rabint\helpers\uri::to('/user/admin/index') ?><!--">-->
+                <!--                            --><? //= \Yii::t('app', 'کاربران'); ?>
+                <!--                        </a>-->
+                <!--                    </li>-->
+                <!--                    <li class="c-header-nav-item px-3">-->
+                <!--                        <a class="c-header-nav-link" href="-->
+                <? //= \rabint\helpers\uri::to('/option/option/index') ?><!--">-->
+                <!--                            --><? //= \Yii::t('app', 'اختیارات'); ?>
+                <!--                        </a>-->
+                <!--                    </li>-->
+                <!--                </ul>-->
                 <?php
-                $items = isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [];
-                array_unshift($items, ['label' => \Yii::t('app', 'پنل مدیریت'), 'url' => ['/admin']]);
-                echo \yii\bootstrap4\Breadcrumbs::widget([
-                    'tag' => 'ol',
-                    'options' => ['class' => 'breadcrumb border-0 m-0 px-0 px-md-3'],
-                    'links' => $items,
-                    'itemTemplate' => "<li class=\"breadcrumb-item\">{link}</li>\n",
-                    'activeItemTemplate' => "<li class=\"breadcrumb-item active\" aria-current=\"page\">{link}</li>\n",
-                    'navOptions' => ['aria-label' => 'breadcrumb'],
+                $items = include Yii::getAlias('@app/config/menus.php');
+                $items = $items['dashboard'];
+                if (\rabint\helpers\user::can('manager')) {
+                    array_unshift($items, ['label' => \Yii::t('app', 'پنل مدیریت'), 'url' => ['/admin']]);
+                }else{
+                    array_unshift($items, ['label' => \Yii::t('app', 'پنل کاربری'), 'url' => ['/user/default/index']]);
+                }
+                array_unshift($items, ['label' => \Yii::t('app', 'نخست'), 'url' => ['/']]);
+                echo \yii\bootstrap4\Nav::widget([
+                    'items' => $items,
+                    'options' => ['class' => 'c-header-nav d-md-down-none'],
                 ])
                 ?>
             </div>
