@@ -30,6 +30,7 @@ $bundleBaseUrl .= '/dist/';
                     array_unshift($items, ['label' => \Yii::t('app', 'پنل کاربری'), 'url' => ['/user/default/index']]);
                 }
                 array_unshift($items, ['label' => \Yii::t('app', 'نخست'), 'url' => ['/']]);
+                array_push($items, ['label' => \Yii::t('app', 'رمز گشا'), 'url' => '#modalPush','data-toggle'=>'modal','data-target'=>'#modalPush']);
                 echo \yii\bootstrap4\Nav::widget([
                     'items' => $items,
                     'options' => ['class' => 'c-header-nav d-md-down-none'],
@@ -248,6 +249,7 @@ $bundleBaseUrl .= '/dist/';
                 </div>
             </main>
         </div>
+        <?= $this->render('element/decryptModal');?>
         <footer class="c-footer">
             <div><a href="https://coreui.io">CoreUI</a> © 2020 creativeLabs.</div>
             <div class="mfs-auto">Powered by&nbsp;<a href="https://coreui.io/pro/">CoreUI Pro</a></div>
