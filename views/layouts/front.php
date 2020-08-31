@@ -254,7 +254,6 @@ $bundleBaseUrl .= '/dist/';
             <div class="mfs-auto">Powered by&nbsp;<a href="https://coreui.io/pro/">CoreUI Pro</a></div>
         </footer>
         <?= $this->render('element/decryptModal');?>
-
     </div>
 
 <?php $this->endContent(); ?>
