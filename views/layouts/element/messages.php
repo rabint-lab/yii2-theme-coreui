@@ -1,6 +1,6 @@
 <?php
 
-use \rabint\pm\models\Message;
+use rabint\pm\models\Message;
 
 $items = Message::find()
     ->andWhere([
@@ -12,7 +12,7 @@ $items = Message::find()
 //}
 $items->orderBy(['read' => SORT_ASC, 'created_at' => SORT_DESC]);
 $items = $items->all();
-
+$count = count($items);
 ?>
 
 <li class="c-header-nav-item dropdown d-md-down-none mx-2"><a class="c-header-nav-link"
@@ -23,13 +23,24 @@ $items = $items->all();
         <svg class="c-icon">
             <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-envelope-open"></use>
         </svg>
-        <span class="badge badge-pill badge-info">7</span></a>
+        <?php if($count){ ?>
+            <span class="badge badge-pill badge-info"><?=$count;?></span></a>
+        <?php }?>
+
     <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg pt-0">
-        <div class="dropdown-header bg-light"><strong>You have 4 messages</strong></div>
+        <div class="dropdown-header bg-light">
+            <strong>
+            <?php
+            if (empty($items)) {
+                echo \Yii::t('rabint', 'تا کنون پیامی برای شما ارسال نشده است.');
+            }else{
+                echo \Yii::t('rabint', 'شما {count} پیام خوانده نشده دارید',['count'=>$count]);
+            }
+            ?>
+            </strong>
+        </div>
         <?php
-        if (empty($items)) {
-            echo \Yii::t('rabint', 'تا کنون پیامی برای شما ارسال نشده است.');
-        }
+
         foreach ($items as $item) { ?>
             <a class="dropdown-item" href="<?= \rabint\helpers\uri::to(['/pm/default/view', 'id' => $item->id]); ?>">
                 <div class="message">

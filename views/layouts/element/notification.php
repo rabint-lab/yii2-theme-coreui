@@ -2,8 +2,21 @@
 if (!class_exists('\rabint\notify\models\Notification')) {
     return;
 }
+if(\rabint\helpers\user::can('manager')){
 
-$notifyModel = \rabint\notify\models\Notification::find()->where(['user_id' => NULL, 'seen' => \rabint\notify\models\Notification::SEEN_STATUS_NO]);
+}
+
+$notifyModel = \rabint\notify\models\Notification::find()
+    ->andWhere([ 'seen' => \rabint\notify\models\Notification::SEEN_STATUS_NO]);
+
+if(\rabint\helpers\user::can('manager')){
+    $notifyModel->andWhere(['OR' ,
+        ['user_id' => \rabint\helpers\user::id()],
+        ['user_id' => NULL],
+    ]);
+}else{
+    $notifyModel->andWhere(['user_id' => \rabint\helpers\user::id()],);
+}
 $notify = $notifyModel->count('*');
 ?>
 <li class="c-header-nav-item dropdown d-md-down-none mx-2"><a class="c-header-nav-link"
@@ -14,7 +27,10 @@ $notify = $notifyModel->count('*');
         <svg class="c-icon">
             <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-bell"></use>
         </svg>
+        <?php if($notify){?>
         <span class="badge badge-pill badge-danger"><?= $notify; ?></span></a>
+        <?php }?>
+
     <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg pt-0">
         <div class="dropdown-header bg-light">
             <strong>
@@ -29,7 +45,7 @@ $notify = $notifyModel->count('*');
         </div>
         <?php foreach ($notifyModel->limit(5)->orderby(['id' => SORT_DESC])->all() as $logEntry) : ?>
             <a class="dropdown-item"
-               href="<?= \rabint\helpers\uri::to(['/notify/admin/view', 'id' => $logEntry->id]) ?>">
+               href="<?= \rabint\helpers\uri::to(['/notify/default/view', 'id' => $logEntry->id]) ?>">
                 <div class="message">
                     <div>
                         <small class="text-muted float-right mt-1">
@@ -42,7 +58,7 @@ $notify = $notifyModel->count('*');
             </a>
         <?php endforeach; ?>
         <a class="dropdown-item text-center border-top"
-           href="<?= \rabint\helpers\uri::to(['/notify/admin/index']) ?>"><strong><?= \Yii::t('rabint', 'همه اعلانات'); ?></strong>
+           href="<?= \rabint\helpers\uri::to(['/notify/default/index']) ?>"><strong><?= \Yii::t('rabint', 'همه اعلانات'); ?></strong>
         </a>
 
     </div>
