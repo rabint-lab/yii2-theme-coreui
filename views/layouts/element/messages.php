@@ -45,7 +45,7 @@ $count = count($items);
             <a class="dropdown-item" href="<?= \rabint\helpers\uri::to(['/pm/default/view', 'id' => $item->id]); ?>">
                 <div class="message">
                     <div class="py-3 mfe-3 float-left">
-                        <div class="c-avatar"><img class="c-avatar-img" src="<?php echo $item->user->userProfile->getAvatar(NULL, 'tiny') ?>"
+                        <div class="c-avatar"><img class="c-avatar-img" src="<?php echo isset($item->user->userProfile)?$item->user->userProfile->getAvatar(NULL, 'tiny'):'' ?>"
                                                    alt="user@email.com"><span
                                     class="c-avatar-status bg-success"></span></div>
                     </div>

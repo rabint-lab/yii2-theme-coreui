@@ -17,6 +17,14 @@ use yii\helpers\Html;
     <meta charset="<?= Yii::$app->charset ?>">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <?php
+    $scheme = config('base_url.scheme','http');
+    if($scheme=='https'){
+        echo '<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">';
+    }
+    ?>
+
     <!-- Favicons -->
     <!--    <link rel="shortcut icon" href="/favicon.png">-->
     <?= Html::csrfMetaTags() ?>
