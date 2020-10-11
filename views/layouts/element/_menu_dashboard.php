@@ -5,7 +5,7 @@ use rabint\themes\codebase\widgets\Menu;
 $menusConf = include Yii::getAlias("@app/config/menus.php");
 
 $premenusConf = [];//\rabint\helpers\collection::getValue($menusConf, 'preadmin', []);
-$menusConf = \rabint\helpers\collection::getValue($menusConf, 'admin', []);
+$menusConf = \rabint\helpers\collection::getValue($menusConf, 'dashboard', []);
 
 
 $ModuleMenu = [];

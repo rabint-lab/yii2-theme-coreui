@@ -14,7 +14,8 @@ class ThemeAsset extends AssetBundle
     public $sourcePath = '@vendor/rabint/theme-coreui/web';
     public $css = [
         "css/site.css",
-        "dist/css/coreui.css",
+        //"dist/css/coreui.css",
+        "dist/css/coreui-dark.css",
         'fonts/glyphicon/glyphicon.css',
     ];
     public $js = [

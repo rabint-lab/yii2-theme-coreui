@@ -7,7 +7,10 @@
 use yii\helpers\Html;
 
 \rabint\theme\coreui\ThemeAsset::register($this);
-
+$bodyClass = $bodyClass ?? '';
+if($this->context instanceof \rabint\controllers\AdminController){
+    $bodyClass.=' c-dark-theme';
+}
 ?>
 
 <?php $this->beginPage() ?>

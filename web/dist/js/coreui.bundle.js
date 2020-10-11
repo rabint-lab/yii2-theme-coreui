@@ -1,12 +1,12 @@
 /*!
-  * CoreUI v3.2.0 (https://coreui.io)
+  * CoreUI v3.3.0 (https://coreui.io)
   * Copyright 2020 creativeLabs Łukasz Holeczek
   * Licensed under MIT (https://coreui.io)
   */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
-  (global = global || self, global.coreui = factory());
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.coreui = factory());
 }(this, (function () { 'use strict';
 
   function _defineProperties(target, props) {
@@ -397,7 +397,7 @@
   /**
    * --------------------------------------------------------------------------
    * Bootstrap (v5.0.0-alpha1): dom/event-handler.js
-   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
   /**
@@ -437,6 +437,8 @@
 
   function bootstrapHandler(element, fn) {
     return function handler(event) {
+      event.delegateTarget = element;
+
       if (handler.oneOff) {
         EventHandler.off(element, event.type, fn);
       }
@@ -452,6 +454,8 @@
       for (var target = event.target; target && target !== this; target = target.parentNode) {
         for (var i = domElements.length; i--;) {
           if (domElements[i] === target) {
+            event.delegateTarget = target;
+
             if (handler.oneOff) {
               EventHandler.off(element, event.type, fn);
             }
@@ -486,7 +490,7 @@
 
   function normalizeParams(originalTypeEvent, handler, delegationFn) {
     var delegation = typeof handler === 'string';
-    var originalHandler = delegation ? delegationFn : handler; // allow to get the native events from namespaced events ('click.coreui.button' --> 'click')
+    var originalHandler = delegation ? delegationFn : handler; // allow to get the native events from namespaced events ('click.bs.button' --> 'click')
 
     var typeEvent = originalTypeEvent.replace(stripNameRegex, '');
     var custom = customEvents[typeEvent];
@@ -636,7 +640,7 @@
           bubbles: bubbles,
           cancelable: true
         });
-      } // merge custom informations in our event
+      } // merge custom information in our event
 
 
       if (typeof args !== 'undefined') {
@@ -680,7 +684,7 @@
    */
 
   var NAME = 'asyncLoad';
-  var VERSION = '3.2.0';
+  var VERSION = '3.2.2';
   var DATA_KEY = 'coreui.asyncLoad';
   var EVENT_KEY = "." + DATA_KEY;
   var DATA_API_KEY = '.data-api';
@@ -944,7 +948,7 @@
    */
 
   var NAME$1 = 'alert';
-  var VERSION$1 = '3.2.0';
+  var VERSION$1 = '3.2.2';
   var DATA_KEY$1 = 'coreui.alert';
   var EVENT_KEY$1 = "." + DATA_KEY$1;
   var DATA_API_KEY$1 = '.data-api';
@@ -975,11 +979,7 @@
 
     // Public
     _proto.close = function close(element) {
-      var rootElement = this._element;
-
-      if (element) {
-        rootElement = this._getRootElement(element);
-      }
+      var rootElement = element ? this._getRootElement(element) : this._element;
 
       var customEvent = this._triggerCloseEvent(rootElement);
 
@@ -1188,7 +1188,7 @@
    */
 
   var NAME$2 = 'button';
-  var VERSION$2 = '3.2.0';
+  var VERSION$2 = '3.2.2';
   var DATA_KEY$2 = 'coreui.button';
   var EVENT_KEY$2 = "." + DATA_KEY$2;
   var DATA_API_KEY$2 = '.data-api';
@@ -1435,7 +1435,7 @@
    */
 
   var NAME$3 = 'carousel';
-  var VERSION$3 = '3.2.0';
+  var VERSION$3 = '3.2.2';
   var DATA_KEY$3 = 'coreui.carousel';
   var EVENT_KEY$3 = "." + DATA_KEY$3;
   var DATA_API_KEY$3 = '.data-api';
@@ -2032,17 +2032,29 @@
    */
 
   var NAME$4 = 'class-toggler';
-  var VERSION$4 = '3.2.0';
+  var VERSION$4 = '3.2.2';
   var DATA_KEY$4 = 'coreui.class-toggler';
   var EVENT_KEY$4 = "." + DATA_KEY$4;
   var DATA_API_KEY$4 = '.data-api';
+  var DefaultType$1 = {
+    addClass: '(null|array|string)',
+    breakpoints: '(null|array|string)',
+    removeClass: '(null|array|string)',
+    responsive: '(null|boolean)',
+    target: '(null|string)',
+    toggleClass: '(null|array|string)'
+  };
   var Default$2 = {
-    breakpoints: '-sm,-md,-lg,-xl',
-    postfix: '-show',
+    addClass: null,
+    breakpoints: ['', 'sm', 'md', 'lg', 'xl'],
+    removeClass: null,
     responsive: false,
-    target: 'body'
+    target: 'body',
+    toggleClass: null
   };
   var CLASS_NAME_CLASS_TOGGLER = 'c-class-toggler';
+  var EVENT_CLASS_ADDED = 'classadded';
+  var EVENT_CLASS_REMOVED = 'classremoved';
   var EVENT_CLASS_TOGGLE = 'classtoggle';
   var EVENT_CLICK_DATA_API$4 = "click" + EVENT_KEY$4 + DATA_API_KEY$4;
   var SELECTOR_CLASS_TOGGLER = '.c-class-toggler';
@@ -2053,186 +2065,176 @@
    */
 
   var ClassToggler = /*#__PURE__*/function () {
-    function ClassToggler(element) {
+    function ClassToggler(element, config) {
       this._element = element;
+      this._config = this._getConfig(config);
+      Data.setData(element, DATA_KEY$4, this);
     } // Getters
 
 
     var _proto = ClassToggler.prototype;
 
     // Public
-    _proto.toggle = function toggle() {
+    _proto.add = function add() {
       var _this = this;
 
-      this._getElementDataAttributes(this._element).forEach(function (dataAttributes) {
-        var element;
-        var target = dataAttributes.target,
-            toggle = dataAttributes.toggle;
+      var target = this._target();
 
-        if (target === '_parent' || target === 'parent') {
-          element = _this._element.parentNode;
+      var classNames = this._config.addClass.replace(/\s/g, '').split(',');
+
+      classNames.forEach(function (className) {
+        target.classList.add(className);
+
+        _this._customEvent(EVENT_CLASS_ADDED, target, true, className);
+      });
+    };
+
+    _proto.remove = function remove() {
+      var _this2 = this;
+
+      var target = this._target();
+
+      var classNames = this._config.removeClass.replace(/\s/g, '').split(',');
+
+      classNames.forEach(function (className) {
+        if (_this2._config.responsive) {
+          _this2._updateResponsiveClassNames(className).forEach(function (className) {
+            target.classList.remove(className);
+
+            _this2._customEvent(EVENT_CLASS_REMOVED, target, false, className);
+          });
         } else {
-          element = document.querySelector(target);
+          target.classList.remove(className);
+
+          _this2._customEvent(EVENT_CLASS_REMOVED, target, false, className);
         }
+      });
+    };
 
-        toggle.forEach(function (object) {
-          var className = object.className,
-              responsive = object.responsive,
-              postfix = object.postfix;
-          var breakpoints = typeof object.breakpoints === 'undefined' || object.breakpoints === null ? null : _this._arrayFromString(object.breakpoints); // eslint-disable-next-line no-negated-condition
+    _proto.toggle = function toggle() {
+      var _this3 = this;
 
-          if (!responsive) {
-            var add = element.classList.toggle(className);
-            var event = new CustomEvent(EVENT_CLASS_TOGGLE, {
-              detail: {
-                target: target,
-                add: add,
-                className: className
-              }
+      var target = this._target();
+
+      var classNames = this._config.toggleClass.replace(/\s/g, '').split(',');
+
+      if (this._config.responsive) {
+        classNames.forEach(function (className) {
+          var responsiveClassNames = _this3._updateResponsiveClassNames(className);
+
+          if (responsiveClassNames.filter(function (className) {
+            return target.classList.contains(className);
+          }).length) {
+            _this3._updateResponsiveClassNames(className).forEach(function (className) {
+              _this3._config.removeClass = className;
+
+              _this3.remove();
+
+              _this3._customEvent(EVENT_CLASS_TOGGLE, target, false, className);
             });
-            element.dispatchEvent(event);
           } else {
-            var currentBreakpoint;
-            breakpoints.forEach(function (breakpoint) {
-              if (className.includes(breakpoint)) {
-                currentBreakpoint = breakpoint;
-              }
-            });
-            var responsiveClassNames = [];
+            _this3._config.addClass = className;
 
-            if (typeof currentBreakpoint === 'undefined') {
-              responsiveClassNames.push(className);
-            } else {
-              responsiveClassNames.push(className.replace("" + currentBreakpoint + postfix, postfix));
-              breakpoints.splice(0, breakpoints.indexOf(currentBreakpoint) + 1).forEach(function (breakpoint) {
-                responsiveClassNames.push(className.replace("" + currentBreakpoint + postfix, "" + breakpoint + postfix));
-              });
-            }
+            _this3.add();
 
-            var addResponsiveClasses = false;
-            responsiveClassNames.forEach(function (responsiveClassName) {
-              if (element.classList.contains(responsiveClassName)) {
-                addResponsiveClasses = true;
-              }
-            });
-
-            if (addResponsiveClasses) {
-              responsiveClassNames.forEach(function (responsiveClassName) {
-                element.classList.remove(responsiveClassName);
-                var event = new CustomEvent(EVENT_CLASS_TOGGLE, {
-                  detail: {
-                    target: target,
-                    add: false,
-                    className: responsiveClassName
-                  }
-                });
-                element.dispatchEvent(event);
-              });
-            } else {
-              element.classList.add(className);
-
-              var _event = new CustomEvent(EVENT_CLASS_TOGGLE, {
-                detail: {
-                  target: target,
-                  add: true,
-                  className: className
-                }
-              });
-
-              element.dispatchEvent(_event);
-            }
+            _this3._customEvent(EVENT_CLASS_TOGGLE, target, true, className);
           }
         });
-      });
+      } else {
+        classNames.forEach(function (className) {
+          if (target.classList.contains(className)) {
+            _this3._config.removeClass = className;
+
+            _this3.remove();
+
+            _this3._customEvent(EVENT_CLASS_TOGGLE, target, false, className);
+          } else {
+            _this3._config.addClass = className;
+
+            _this3.add();
+
+            _this3._customEvent(EVENT_CLASS_TOGGLE, target, true, className);
+          }
+        });
+      }
+    };
+
+    _proto.class = function _class() {
+      this._config.toggleClass = this._config.class;
+
+      if (this._element.getAttribute('responsive')) {
+        this._config.responsive = this._element.getAttribute('responsive');
+      }
+
+      this.toggle();
     } // Private
     ;
 
-    _proto._arrayFromString = function _arrayFromString(string) {
-      return string.replace(/ /g, '').split(',');
-    };
-
-    _proto._isArray = function _isArray(array) {
-      try {
-        JSON.parse(array.replace(/'/g, '"'));
-        return true;
-      } catch (_unused) {
-        return false;
+    _proto._target = function _target() {
+      if (this._config.target === 'body') {
+        return document.querySelector(this._config.target);
       }
+
+      if (this._config.target === '_parent') {
+        return this._element.parentNode;
+      }
+
+      return document.querySelector(this._config.target);
     };
 
-    _proto._convertToArray = function _convertToArray(array) {
-      return JSON.parse(array.replace(/'/g, '"'));
-    };
-
-    _proto._getDataAttributes = function _getDataAttributes(data, attribute) {
-      var dataAttribute = data[attribute];
-      return this._isArray(dataAttribute) ? this._convertToArray(dataAttribute) : dataAttribute;
-    };
-
-    _proto._getToggleDetails = function _getToggleDetails(classNames, responsive, breakpoints, postfix) {
-      var ToggleDetails = // eslint-disable-next-line default-param-last
-      function ToggleDetails(className, responsive, breakpoints, postfix) {
-        if (responsive === void 0) {
-          responsive = Default$2.responsive;
+    _proto._customEvent = function _customEvent(eventName, target, add, className) {
+      var event = new CustomEvent(eventName, {
+        detail: {
+          target: target,
+          add: add,
+          className: className
         }
-
-        this.className = className;
-        this.responsive = responsive;
-        this.breakpoints = breakpoints;
-        this.postfix = postfix;
-      };
-
-      var toggle = [];
-
-      if (Array.isArray(classNames)) {
-        classNames.forEach(function (className, index) {
-          responsive = Array.isArray(responsive) ? responsive[index] : responsive;
-          breakpoints = responsive ? Array.isArray(breakpoints) ? breakpoints[index] : breakpoints : null;
-          postfix = responsive ? Array.isArray(postfix) ? postfix[index] : postfix : null;
-          toggle.push(new ToggleDetails(className, responsive, breakpoints, postfix));
-        });
-      } else {
-        breakpoints = responsive ? breakpoints : null;
-        postfix = responsive ? postfix : null;
-        toggle.push(new ToggleDetails(classNames, responsive, breakpoints, postfix));
-      }
-
-      return toggle;
+      });
+      target.dispatchEvent(event);
     };
 
-    _proto._ifArray = function _ifArray(array, index) {
-      return Array.isArray(array) ? array[index] : array;
+    _proto._breakpoint = function _breakpoint(className) {
+      var breakpoints = this._config.breakpoints;
+      return breakpoints.filter(function (breakpoint) {
+        return breakpoint.length > 0;
+      }).filter(function (breakpoint) {
+        return className.includes(breakpoint);
+      })[0];
     };
 
-    _proto._getElementDataAttributes = function _getElementDataAttributes(element) {
-      var _this2 = this;
+    _proto._breakpoints = function _breakpoints(className) {
+      var breakpoints = this._config.breakpoints;
+      return breakpoints.slice(0, breakpoints.indexOf(breakpoints.filter(function (breakpoint) {
+        return breakpoint.length > 0;
+      }).filter(function (breakpoint) {
+        return className.includes(breakpoint);
+      })[0]) + 1);
+    };
 
-      var data = element.dataset;
-      var targets = typeof data.target === 'undefined' ? Default$2.target : this._getDataAttributes(data, 'target');
-      var classNames = typeof data.class === 'undefined' ? 'undefined' : this._getDataAttributes(data, 'class');
-      var responsive = typeof data.responsive === 'undefined' ? Default$2.responsive : this._getDataAttributes(data, 'responsive');
-      var breakpoints = typeof data.breakpoints === 'undefined' ? Default$2.breakpoints : this._getDataAttributes(data, 'breakpoints');
-      var postfix = typeof data.postfix === 'undefined' ? Default$2.postfix : this._getDataAttributes(data, 'postfix');
-      var toggle = [];
+    _proto._updateResponsiveClassNames = function _updateResponsiveClassNames(className) {
+      var bp = this._breakpoint(className);
 
-      var TargetDetails = function TargetDetails(target, toggle) {
-        this.target = target;
-        this.toggle = toggle;
-      };
+      return this._breakpoints(className).map(function (breakpoint) {
+        return breakpoint.length > 0 ? className.replace(bp, breakpoint) : className.replace("-" + bp, breakpoint);
+      });
+    };
 
-      if (Array.isArray(targets)) {
-        targets.forEach(function (target, index) {
-          toggle.push(new TargetDetails(target, _this2._getToggleDetails(_this2._ifArray(classNames, index), _this2._ifArray(responsive, index), _this2._ifArray(breakpoints, index), _this2._ifArray(postfix, index))));
-        });
-      } else {
-        toggle.push(new TargetDetails(targets, this._getToggleDetails(classNames, responsive, breakpoints, postfix)));
-      }
+    _proto._includesResponsiveClass = function _includesResponsiveClass(className) {
+      var _this4 = this;
 
-      return toggle;
+      return this._updateResponsiveClassNames(className).filter(function (className) {
+        return _this4._config.target.contains(className);
+      });
     } // Static
     ;
 
-    ClassToggler._classTogglerInterface = function _classTogglerInterface(element, config) {
+    _proto._getConfig = function _getConfig(config) {
+      config = _objectSpread2(_objectSpread2(_objectSpread2({}, this.constructor.Default), Manipulator.getDataAttributes(this._element)), config);
+      typeCheckConfig(NAME$4, config, this.constructor.DefaultType);
+      return config;
+    };
+
+    ClassToggler.classTogglerInterface = function classTogglerInterface(element, config) {
       var data = Data.getData(element, DATA_KEY$4);
 
       var _config = typeof config === 'object' && config;
@@ -2252,7 +2254,7 @@
 
     ClassToggler.jQueryInterface = function jQueryInterface(config) {
       return this.each(function () {
-        ClassToggler._classTogglerInterface(this, config);
+        ClassToggler.classTogglerInterface(this, config);
       });
     };
 
@@ -2260,6 +2262,16 @@
       key: "VERSION",
       get: function get() {
         return VERSION$4;
+      }
+    }, {
+      key: "Default",
+      get: function get() {
+        return Default$2;
+      }
+    }, {
+      key: "DefaultType",
+      get: function get() {
+        return DefaultType$1;
       }
     }]);
 
@@ -2274,13 +2286,28 @@
 
   EventHandler.on(document, EVENT_CLICK_DATA_API$4, SELECTOR_CLASS_TOGGLER, function (event) {
     event.preventDefault();
+    event.stopPropagation();
     var toggler = event.target;
 
     if (!toggler.classList.contains(CLASS_NAME_CLASS_TOGGLER)) {
       toggler = toggler.closest(SELECTOR_CLASS_TOGGLER);
     }
 
-    ClassToggler._classTogglerInterface(toggler, 'toggle');
+    if (typeof toggler.dataset.addClass !== 'undefined') {
+      ClassToggler.classTogglerInterface(toggler, 'add');
+    }
+
+    if (typeof toggler.dataset.removeClass !== 'undefined') {
+      ClassToggler.classTogglerInterface(toggler, 'remove');
+    }
+
+    if (typeof toggler.dataset.toggleClass !== 'undefined') {
+      ClassToggler.classTogglerInterface(toggler, 'toggle');
+    }
+
+    if (typeof toggler.dataset.class !== 'undefined') {
+      ClassToggler.classTogglerInterface(toggler, 'class');
+    }
   });
   var $$5 = getjQuery();
   /**
@@ -2308,7 +2335,7 @@
    */
 
   var NAME$5 = 'collapse';
-  var VERSION$5 = '3.2.0';
+  var VERSION$5 = '3.2.2';
   var DATA_KEY$5 = 'coreui.collapse';
   var EVENT_KEY$5 = "." + DATA_KEY$5;
   var DATA_API_KEY$5 = '.data-api';
@@ -2316,7 +2343,7 @@
     toggle: true,
     parent: ''
   };
-  var DefaultType$1 = {
+  var DefaultType$2 = {
     toggle: 'boolean',
     parent: '(string|element)'
   };
@@ -2550,14 +2577,12 @@
       config = _objectSpread2(_objectSpread2({}, Default$3), config);
       config.toggle = Boolean(config.toggle); // Coerce string values
 
-      typeCheckConfig(NAME$5, config, DefaultType$1);
+      typeCheckConfig(NAME$5, config, DefaultType$2);
       return config;
     };
 
     _proto._getDimension = function _getDimension() {
-      var hasWidth = this._element.classList.contains(WIDTH);
-
-      return hasWidth ? WIDTH : HEIGHT;
+      return this._element.classList.contains(WIDTH) ? WIDTH : HEIGHT;
     };
 
     _proto._getParent = function _getParent() {
@@ -2584,21 +2609,20 @@
     };
 
     _proto._addAriaAndCollapsedClass = function _addAriaAndCollapsedClass(element, triggerArray) {
-      if (element) {
-        var isOpen = element.classList.contains(CLASS_NAME_SHOW$1);
-
-        if (triggerArray.length) {
-          triggerArray.forEach(function (elem) {
-            if (isOpen) {
-              elem.classList.remove(CLASS_NAME_COLLAPSED);
-            } else {
-              elem.classList.add(CLASS_NAME_COLLAPSED);
-            }
-
-            elem.setAttribute('aria-expanded', isOpen);
-          });
-        }
+      if (!element || !triggerArray.length) {
+        return;
       }
+
+      var isOpen = element.classList.contains(CLASS_NAME_SHOW$1);
+      triggerArray.forEach(function (elem) {
+        if (isOpen) {
+          elem.classList.remove(CLASS_NAME_COLLAPSED);
+        } else {
+          elem.classList.add(CLASS_NAME_COLLAPSED);
+        }
+
+        elem.setAttribute('aria-expanded', isOpen);
+      });
     } // Static
     ;
 
@@ -2814,6 +2838,7 @@
 
     var documentElement = getDocumentElement(offsetParent);
     var rect = getBoundingClientRect(elementOrVirtualElement);
+    var isOffsetParentAnElement = isHTMLElement(offsetParent);
     var scroll = {
       scrollLeft: 0,
       scrollTop: 0
@@ -2823,7 +2848,7 @@
       y: 0
     };
 
-    if (!isFixed) {
+    if (isOffsetParentAnElement || !isOffsetParentAnElement && !isFixed) {
       if (getNodeName(offsetParent) !== 'body' || // https://github.com/popperjs/popper-core/issues/1078
       isScrollParent(documentElement)) {
         scroll = getNodeScroll(offsetParent);
@@ -2886,6 +2911,13 @@
     return getScrollParent(getParentNode(node));
   }
 
+  /*
+  given a DOM element, return the list of all scroll parents, up the list of ancesors
+  until we get to the top window object. This list is what we attach scroll listeners
+  to, because if any of these parent elements scroll, we'll need to re-calculate the 
+  reference element's position.
+  */
+
   function listScrollParents(element, list) {
     if (list === void 0) {
       list = [];
@@ -2910,14 +2942,45 @@
       return null;
     }
 
-    return element.offsetParent;
-  }
+    var offsetParent = element.offsetParent;
+
+    if (offsetParent) {
+      var html = getDocumentElement(offsetParent);
+
+      if (getNodeName(offsetParent) === 'body' && getComputedStyle$1(offsetParent).position === 'static' && getComputedStyle$1(html).position !== 'static') {
+        return html;
+      }
+    }
+
+    return offsetParent;
+  } // `.offsetParent` reports `null` for fixed elements, while absolute elements
+  // return the containing block
+
+
+  function getContainingBlock(element) {
+    var currentNode = getParentNode(element);
+
+    while (isHTMLElement(currentNode) && ['html', 'body'].indexOf(getNodeName(currentNode)) < 0) {
+      var css = getComputedStyle$1(currentNode); // This is non-exhaustive but covers the most common CSS properties that
+      // create a containing block.
+
+      if (css.transform !== 'none' || css.perspective !== 'none' || css.willChange && css.willChange !== 'auto') {
+        return currentNode;
+      } else {
+        currentNode = currentNode.parentNode;
+      }
+    }
+
+    return null;
+  } // Gets the closest ancestor positioned element. Handles some edge cases,
+  // such as table ancestors and cross browser bugs.
+
 
   function getOffsetParent(element) {
     var window = getWindow(element);
-    var offsetParent = getTrueOffsetParent(element); // Find the nearest non-table offsetParent
+    var offsetParent = getTrueOffsetParent(element);
 
-    while (offsetParent && isTableElement(offsetParent)) {
+    while (offsetParent && isTableElement(offsetParent) && getComputedStyle$1(offsetParent).position === 'static') {
       offsetParent = getTrueOffsetParent(offsetParent);
     }
 
@@ -2925,7 +2988,7 @@
       return window;
     }
 
-    return offsetParent || window;
+    return offsetParent || getContainingBlock(element) || window;
   }
 
   var top = 'top';
@@ -3026,9 +3089,9 @@
   function mergeByName(modifiers) {
     var merged = modifiers.reduce(function (merged, current) {
       var existing = merged[current.name];
-      merged[current.name] = existing ? Object.assign({}, existing, {}, current, {
-        options: Object.assign({}, existing.options, {}, current.options),
-        data: Object.assign({}, existing.data, {}, current.data)
+      merged[current.name] = existing ? Object.assign(Object.assign(Object.assign({}, existing), current), {}, {
+        options: Object.assign(Object.assign({}, existing.options), current.options),
+        data: Object.assign(Object.assign({}, existing.data), current.data)
       }) : current;
       return merged;
     }, {}); // IE11 does not support Object.values
@@ -3036,6 +3099,304 @@
     return Object.keys(merged).map(function (key) {
       return merged[key];
     });
+  }
+
+  function getViewportRect(element) {
+    var win = getWindow(element);
+    var html = getDocumentElement(element);
+    var visualViewport = win.visualViewport;
+    var width = html.clientWidth;
+    var height = html.clientHeight;
+    var x = 0;
+    var y = 0; // NB: This isn't supported on iOS <= 12. If the keyboard is open, the popper
+    // can be obscured underneath it.
+    // Also, `html.clientHeight` adds the bottom bar height in Safari iOS, even
+    // if it isn't open, so if this isn't available, the popper will be detected
+    // to overflow the bottom of the screen too early.
+
+    if (visualViewport) {
+      width = visualViewport.width;
+      height = visualViewport.height; // Uses Layout Viewport (like Chrome; Safari does not currently)
+      // In Chrome, it returns a value very close to 0 (+/-) but contains rounding
+      // errors due to floating point numbers, so we need to check precision.
+      // Safari returns a number <= 0, usually < -1 when pinch-zoomed
+      // Feature detection fails in mobile emulation mode in Chrome.
+      // Math.abs(win.innerWidth / visualViewport.scale - visualViewport.width) <
+      // 0.001
+      // Fallback here: "Not Safari" userAgent
+
+      if (!/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+        x = visualViewport.offsetLeft;
+        y = visualViewport.offsetTop;
+      }
+    }
+
+    return {
+      width: width,
+      height: height,
+      x: x + getWindowScrollBarX(element),
+      y: y
+    };
+  }
+
+  // of the `<html>` and `<body>` rect bounds if horizontally scrollable
+
+  function getDocumentRect(element) {
+    var html = getDocumentElement(element);
+    var winScroll = getWindowScroll(element);
+    var body = element.ownerDocument.body;
+    var width = Math.max(html.scrollWidth, html.clientWidth, body ? body.scrollWidth : 0, body ? body.clientWidth : 0);
+    var height = Math.max(html.scrollHeight, html.clientHeight, body ? body.scrollHeight : 0, body ? body.clientHeight : 0);
+    var x = -winScroll.scrollLeft + getWindowScrollBarX(element);
+    var y = -winScroll.scrollTop;
+
+    if (getComputedStyle$1(body || html).direction === 'rtl') {
+      x += Math.max(html.clientWidth, body ? body.clientWidth : 0) - width;
+    }
+
+    return {
+      width: width,
+      height: height,
+      x: x,
+      y: y
+    };
+  }
+
+  function contains(parent, child) {
+    // $FlowFixMe: hasOwnProperty doesn't seem to work in tests
+    var isShadow = Boolean(child.getRootNode && child.getRootNode().host); // First, attempt with faster native method
+
+    if (parent.contains(child)) {
+      return true;
+    } // then fallback to custom implementation with Shadow DOM support
+    else if (isShadow) {
+        var next = child;
+
+        do {
+          if (next && parent.isSameNode(next)) {
+            return true;
+          } // $FlowFixMe: need a better way to handle this...
+
+
+          next = next.parentNode || next.host;
+        } while (next);
+      } // Give up, the result is false
+
+
+    return false;
+  }
+
+  function rectToClientRect(rect) {
+    return Object.assign(Object.assign({}, rect), {}, {
+      left: rect.x,
+      top: rect.y,
+      right: rect.x + rect.width,
+      bottom: rect.y + rect.height
+    });
+  }
+
+  function getInnerBoundingClientRect(element) {
+    var rect = getBoundingClientRect(element);
+    rect.top = rect.top + element.clientTop;
+    rect.left = rect.left + element.clientLeft;
+    rect.bottom = rect.top + element.clientHeight;
+    rect.right = rect.left + element.clientWidth;
+    rect.width = element.clientWidth;
+    rect.height = element.clientHeight;
+    rect.x = rect.left;
+    rect.y = rect.top;
+    return rect;
+  }
+
+  function getClientRectFromMixedType(element, clippingParent) {
+    return clippingParent === viewport ? rectToClientRect(getViewportRect(element)) : isHTMLElement(clippingParent) ? getInnerBoundingClientRect(clippingParent) : rectToClientRect(getDocumentRect(getDocumentElement(element)));
+  } // A "clipping parent" is an overflowable container with the characteristic of
+  // clipping (or hiding) overflowing elements with a position different from
+  // `initial`
+
+
+  function getClippingParents(element) {
+    var clippingParents = listScrollParents(getParentNode(element));
+    var canEscapeClipping = ['absolute', 'fixed'].indexOf(getComputedStyle$1(element).position) >= 0;
+    var clipperElement = canEscapeClipping && isHTMLElement(element) ? getOffsetParent(element) : element;
+
+    if (!isElement$1(clipperElement)) {
+      return [];
+    } // $FlowFixMe: https://github.com/facebook/flow/issues/1414
+
+
+    return clippingParents.filter(function (clippingParent) {
+      return isElement$1(clippingParent) && contains(clippingParent, clipperElement) && getNodeName(clippingParent) !== 'body';
+    });
+  } // Gets the maximum area that the element is visible in due to any number of
+  // clipping parents
+
+
+  function getClippingRect(element, boundary, rootBoundary) {
+    var mainClippingParents = boundary === 'clippingParents' ? getClippingParents(element) : [].concat(boundary);
+    var clippingParents = [].concat(mainClippingParents, [rootBoundary]);
+    var firstClippingParent = clippingParents[0];
+    var clippingRect = clippingParents.reduce(function (accRect, clippingParent) {
+      var rect = getClientRectFromMixedType(element, clippingParent);
+      accRect.top = Math.max(rect.top, accRect.top);
+      accRect.right = Math.min(rect.right, accRect.right);
+      accRect.bottom = Math.min(rect.bottom, accRect.bottom);
+      accRect.left = Math.max(rect.left, accRect.left);
+      return accRect;
+    }, getClientRectFromMixedType(element, firstClippingParent));
+    clippingRect.width = clippingRect.right - clippingRect.left;
+    clippingRect.height = clippingRect.bottom - clippingRect.top;
+    clippingRect.x = clippingRect.left;
+    clippingRect.y = clippingRect.top;
+    return clippingRect;
+  }
+
+  function getVariation(placement) {
+    return placement.split('-')[1];
+  }
+
+  function getMainAxisFromPlacement(placement) {
+    return ['top', 'bottom'].indexOf(placement) >= 0 ? 'x' : 'y';
+  }
+
+  function computeOffsets(_ref) {
+    var reference = _ref.reference,
+        element = _ref.element,
+        placement = _ref.placement;
+    var basePlacement = placement ? getBasePlacement(placement) : null;
+    var variation = placement ? getVariation(placement) : null;
+    var commonX = reference.x + reference.width / 2 - element.width / 2;
+    var commonY = reference.y + reference.height / 2 - element.height / 2;
+    var offsets;
+
+    switch (basePlacement) {
+      case top:
+        offsets = {
+          x: commonX,
+          y: reference.y - element.height
+        };
+        break;
+
+      case bottom:
+        offsets = {
+          x: commonX,
+          y: reference.y + reference.height
+        };
+        break;
+
+      case right:
+        offsets = {
+          x: reference.x + reference.width,
+          y: commonY
+        };
+        break;
+
+      case left:
+        offsets = {
+          x: reference.x - element.width,
+          y: commonY
+        };
+        break;
+
+      default:
+        offsets = {
+          x: reference.x,
+          y: reference.y
+        };
+    }
+
+    var mainAxis = basePlacement ? getMainAxisFromPlacement(basePlacement) : null;
+
+    if (mainAxis != null) {
+      var len = mainAxis === 'y' ? 'height' : 'width';
+
+      switch (variation) {
+        case start:
+          offsets[mainAxis] = Math.floor(offsets[mainAxis]) - Math.floor(reference[len] / 2 - element[len] / 2);
+          break;
+
+        case end:
+          offsets[mainAxis] = Math.floor(offsets[mainAxis]) + Math.ceil(reference[len] / 2 - element[len] / 2);
+          break;
+      }
+    }
+
+    return offsets;
+  }
+
+  function getFreshSideObject() {
+    return {
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0
+    };
+  }
+
+  function mergePaddingObject(paddingObject) {
+    return Object.assign(Object.assign({}, getFreshSideObject()), paddingObject);
+  }
+
+  function expandToHashMap(value, keys) {
+    return keys.reduce(function (hashMap, key) {
+      hashMap[key] = value;
+      return hashMap;
+    }, {});
+  }
+
+  function detectOverflow(state, options) {
+    if (options === void 0) {
+      options = {};
+    }
+
+    var _options = options,
+        _options$placement = _options.placement,
+        placement = _options$placement === void 0 ? state.placement : _options$placement,
+        _options$boundary = _options.boundary,
+        boundary = _options$boundary === void 0 ? clippingParents : _options$boundary,
+        _options$rootBoundary = _options.rootBoundary,
+        rootBoundary = _options$rootBoundary === void 0 ? viewport : _options$rootBoundary,
+        _options$elementConte = _options.elementContext,
+        elementContext = _options$elementConte === void 0 ? popper : _options$elementConte,
+        _options$altBoundary = _options.altBoundary,
+        altBoundary = _options$altBoundary === void 0 ? false : _options$altBoundary,
+        _options$padding = _options.padding,
+        padding = _options$padding === void 0 ? 0 : _options$padding;
+    var paddingObject = mergePaddingObject(typeof padding !== 'number' ? padding : expandToHashMap(padding, basePlacements));
+    var altContext = elementContext === popper ? reference : popper;
+    var referenceElement = state.elements.reference;
+    var popperRect = state.rects.popper;
+    var element = state.elements[altBoundary ? altContext : elementContext];
+    var clippingClientRect = getClippingRect(isElement$1(element) ? element : element.contextElement || getDocumentElement(state.elements.popper), boundary, rootBoundary);
+    var referenceClientRect = getBoundingClientRect(referenceElement);
+    var popperOffsets = computeOffsets({
+      reference: referenceClientRect,
+      element: popperRect,
+      strategy: 'absolute',
+      placement: placement
+    });
+    var popperClientRect = rectToClientRect(Object.assign(Object.assign({}, popperRect), popperOffsets));
+    var elementClientRect = elementContext === popper ? popperClientRect : referenceClientRect; // positive = overflowing the clipping rect
+    // 0 or negative = within the clipping rect
+
+    var overflowOffsets = {
+      top: clippingClientRect.top - elementClientRect.top + paddingObject.top,
+      bottom: elementClientRect.bottom - clippingClientRect.bottom + paddingObject.bottom,
+      left: clippingClientRect.left - elementClientRect.left + paddingObject.left,
+      right: elementClientRect.right - clippingClientRect.right + paddingObject.right
+    };
+    var offsetData = state.modifiersData.offset; // Offsets can be applied only to the popper element
+
+    if (elementContext === popper && offsetData) {
+      var offset = offsetData[placement];
+      Object.keys(overflowOffsets).forEach(function (key) {
+        var multiply = [right, bottom].indexOf(key) >= 0 ? 1 : -1;
+        var axis = [top, bottom].indexOf(key) >= 0 ? 'y' : 'x';
+        overflowOffsets[key] += offset[axis] * multiply;
+      });
+    }
+
+    return overflowOffsets;
   }
 
   var DEFAULT_OPTIONS = {
@@ -3072,7 +3433,7 @@
       var state = {
         placement: 'bottom',
         orderedModifiers: [],
-        options: Object.assign({}, DEFAULT_OPTIONS, {}, defaultOptions),
+        options: Object.assign(Object.assign({}, DEFAULT_OPTIONS), defaultOptions),
         modifiersData: {},
         elements: {
           reference: reference,
@@ -3087,7 +3448,7 @@
         state: state,
         setOptions: function setOptions(options) {
           cleanupModifierEffects();
-          state.options = Object.assign({}, defaultOptions, {}, state.options, {}, options);
+          state.options = Object.assign(Object.assign(Object.assign({}, defaultOptions), state.options), options);
           state.scrollParents = {
             reference: isElement$1(reference) ? listScrollParents(reference) : reference.contextElement ? listScrollParents(reference.contextElement) : [],
             popper: listScrollParents(popper)
@@ -3277,79 +3638,6 @@
     data: {}
   };
 
-  function getVariation(placement) {
-    return placement.split('-')[1];
-  }
-
-  function getMainAxisFromPlacement(placement) {
-    return ['top', 'bottom'].indexOf(placement) >= 0 ? 'x' : 'y';
-  }
-
-  function computeOffsets(_ref) {
-    var reference = _ref.reference,
-        element = _ref.element,
-        placement = _ref.placement;
-    var basePlacement = placement ? getBasePlacement(placement) : null;
-    var variation = placement ? getVariation(placement) : null;
-    var commonX = reference.x + reference.width / 2 - element.width / 2;
-    var commonY = reference.y + reference.height / 2 - element.height / 2;
-    var offsets;
-
-    switch (basePlacement) {
-      case top:
-        offsets = {
-          x: commonX,
-          y: reference.y - element.height
-        };
-        break;
-
-      case bottom:
-        offsets = {
-          x: commonX,
-          y: reference.y + reference.height
-        };
-        break;
-
-      case right:
-        offsets = {
-          x: reference.x + reference.width,
-          y: commonY
-        };
-        break;
-
-      case left:
-        offsets = {
-          x: reference.x - element.width,
-          y: commonY
-        };
-        break;
-
-      default:
-        offsets = {
-          x: reference.x,
-          y: reference.y
-        };
-    }
-
-    var mainAxis = basePlacement ? getMainAxisFromPlacement(basePlacement) : null;
-
-    if (mainAxis != null) {
-      var len = mainAxis === 'y' ? 'height' : 'width';
-
-      switch (variation) {
-        case start:
-          offsets[mainAxis] = Math.floor(offsets[mainAxis]) - Math.floor(reference[len] / 2 - element[len] / 2);
-          break;
-
-        case end:
-          offsets[mainAxis] = Math.floor(offsets[mainAxis]) + Math.ceil(reference[len] / 2 - element[len] / 2);
-          break;
-      }
-    }
-
-    return offsets;
-  }
-
   function popperOffsets(_ref) {
     var state = _ref.state,
         name = _ref.name;
@@ -3445,10 +3733,10 @@
     if (gpuAcceleration) {
       var _Object$assign;
 
-      return Object.assign({}, commonStyles, (_Object$assign = {}, _Object$assign[sideY] = hasY ? '0' : '', _Object$assign[sideX] = hasX ? '0' : '', _Object$assign.transform = (win.devicePixelRatio || 1) < 2 ? "translate(" + x + "px, " + y + "px)" : "translate3d(" + x + "px, " + y + "px, 0)", _Object$assign));
+      return Object.assign(Object.assign({}, commonStyles), {}, (_Object$assign = {}, _Object$assign[sideY] = hasY ? '0' : '', _Object$assign[sideX] = hasX ? '0' : '', _Object$assign.transform = (win.devicePixelRatio || 1) < 2 ? "translate(" + x + "px, " + y + "px)" : "translate3d(" + x + "px, " + y + "px, 0)", _Object$assign));
     }
 
-    return Object.assign({}, commonStyles, (_Object$assign2 = {}, _Object$assign2[sideY] = hasY ? y + "px" : '', _Object$assign2[sideX] = hasX ? x + "px" : '', _Object$assign2.transform = '', _Object$assign2));
+    return Object.assign(Object.assign({}, commonStyles), {}, (_Object$assign2 = {}, _Object$assign2[sideY] = hasY ? y + "px" : '', _Object$assign2[sideX] = hasX ? x + "px" : '', _Object$assign2.transform = '', _Object$assign2));
   }
 
   function computeStyles(_ref3) {
@@ -3467,7 +3755,7 @@
     };
 
     if (state.modifiersData.popperOffsets != null) {
-      state.styles.popper = Object.assign({}, state.styles.popper, {}, mapToStyles(Object.assign({}, commonStyles, {
+      state.styles.popper = Object.assign(Object.assign({}, state.styles.popper), mapToStyles(Object.assign(Object.assign({}, commonStyles), {}, {
         offsets: state.modifiersData.popperOffsets,
         position: state.options.strategy,
         adaptive: adaptive
@@ -3475,14 +3763,14 @@
     }
 
     if (state.modifiersData.arrow != null) {
-      state.styles.arrow = Object.assign({}, state.styles.arrow, {}, mapToStyles(Object.assign({}, commonStyles, {
+      state.styles.arrow = Object.assign(Object.assign({}, state.styles.arrow), mapToStyles(Object.assign(Object.assign({}, commonStyles), {}, {
         offsets: state.modifiersData.arrow,
         position: 'absolute',
         adaptive: false
       })));
     }
 
-    state.attributes.popper = Object.assign({}, state.attributes.popper, {
+    state.attributes.popper = Object.assign(Object.assign({}, state.attributes.popper), {}, {
       'data-popper-placement': state.placement
     });
   } // eslint-disable-next-line import/no-unused-modules
@@ -3585,7 +3873,7 @@
     var basePlacement = getBasePlacement(placement);
     var invertDistance = [left, top].indexOf(basePlacement) >= 0 ? -1 : 1;
 
-    var _ref = typeof offset === 'function' ? offset(Object.assign({}, rects, {
+    var _ref = typeof offset === 'function' ? offset(Object.assign(Object.assign({}, rects), {}, {
       placement: placement
     })) : offset,
         skidding = _ref[0],
@@ -3655,233 +3943,6 @@
     });
   }
 
-  function getViewportRect(element) {
-    var win = getWindow(element);
-    var visualViewport = win.visualViewport;
-    var width = win.innerWidth;
-    var height = win.innerHeight; // We don't know which browsers have buggy or odd implementations of this, so
-    // for now we're only applying it to iOS to fix the keyboard issue.
-    // Investigation required
-
-    if (visualViewport && /iPhone|iPod|iPad/.test(navigator.platform)) {
-      width = visualViewport.width;
-      height = visualViewport.height;
-    }
-
-    return {
-      width: width,
-      height: height,
-      x: 0,
-      y: 0
-    };
-  }
-
-  function getDocumentRect(element) {
-    var win = getWindow(element);
-    var winScroll = getWindowScroll(element);
-    var documentRect = getCompositeRect(getDocumentElement(element), win);
-    documentRect.height = Math.max(documentRect.height, win.innerHeight);
-    documentRect.width = Math.max(documentRect.width, win.innerWidth);
-    documentRect.x = -winScroll.scrollLeft;
-    documentRect.y = -winScroll.scrollTop;
-    return documentRect;
-  }
-
-  function toNumber(cssValue) {
-    return parseFloat(cssValue) || 0;
-  }
-
-  function getBorders(element) {
-    var computedStyle = isHTMLElement(element) ? getComputedStyle$1(element) : {};
-    return {
-      top: toNumber(computedStyle.borderTopWidth),
-      right: toNumber(computedStyle.borderRightWidth),
-      bottom: toNumber(computedStyle.borderBottomWidth),
-      left: toNumber(computedStyle.borderLeftWidth)
-    };
-  }
-
-  function getDecorations(element) {
-    var win = getWindow(element);
-    var borders = getBorders(element);
-    var isHTML = getNodeName(element) === 'html';
-    var winScrollBarX = getWindowScrollBarX(element);
-    var x = element.clientWidth + borders.right;
-    var y = element.clientHeight + borders.bottom; // HACK:
-    // document.documentElement.clientHeight on iOS reports the height of the
-    // viewport including the bottom bar, even if the bottom bar isn't visible.
-    // If the difference between window innerHeight and html clientHeight is more
-    // than 50, we assume it's a mobile bottom bar and ignore scrollbars.
-    // * A 50px thick scrollbar is likely non-existent (macOS is 15px and Windows
-    //   is about 17px)
-    // * The mobile bar is 114px tall
-
-    if (isHTML && win.innerHeight - element.clientHeight > 50) {
-      y = win.innerHeight - borders.bottom;
-    }
-
-    return {
-      top: isHTML ? 0 : element.clientTop,
-      right: // RTL scrollbar (scrolling containers only)
-      element.clientLeft > borders.left ? borders.right : // LTR scrollbar
-      isHTML ? win.innerWidth - x - winScrollBarX : element.offsetWidth - x,
-      bottom: isHTML ? win.innerHeight - y : element.offsetHeight - y,
-      left: isHTML ? winScrollBarX : element.clientLeft
-    };
-  }
-
-  function contains(parent, child) {
-    // $FlowFixMe: hasOwnProperty doesn't seem to work in tests
-    var isShadow = Boolean(child.getRootNode && child.getRootNode().host); // First, attempt with faster native method
-
-    if (parent.contains(child)) {
-      return true;
-    } // then fallback to custom implementation with Shadow DOM support
-    else if (isShadow) {
-        var next = child;
-
-        do {
-          if (next && parent.isSameNode(next)) {
-            return true;
-          } // $FlowFixMe: need a better way to handle this...
-
-
-          next = next.parentNode || next.host;
-        } while (next);
-      } // Give up, the result is false
-
-
-    return false;
-  }
-
-  function rectToClientRect(rect) {
-    return Object.assign({}, rect, {
-      left: rect.x,
-      top: rect.y,
-      right: rect.x + rect.width,
-      bottom: rect.y + rect.height
-    });
-  }
-
-  function getClientRectFromMixedType(element, clippingParent) {
-    return clippingParent === viewport ? rectToClientRect(getViewportRect(element)) : isHTMLElement(clippingParent) ? getBoundingClientRect(clippingParent) : rectToClientRect(getDocumentRect(getDocumentElement(element)));
-  } // A "clipping parent" is an overflowable container with the characteristic of
-  // clipping (or hiding) overflowing elements with a position different from
-  // `initial`
-
-
-  function getClippingParents(element) {
-    var clippingParents = listScrollParents(element);
-    var canEscapeClipping = ['absolute', 'fixed'].indexOf(getComputedStyle$1(element).position) >= 0;
-    var clipperElement = canEscapeClipping && isHTMLElement(element) ? getOffsetParent(element) : element;
-
-    if (!isElement$1(clipperElement)) {
-      return [];
-    } // $FlowFixMe: https://github.com/facebook/flow/issues/1414
-
-
-    return clippingParents.filter(function (clippingParent) {
-      return isElement$1(clippingParent) && contains(clippingParent, clipperElement);
-    });
-  } // Gets the maximum area that the element is visible in due to any number of
-  // clipping parents
-
-
-  function getClippingRect(element, boundary, rootBoundary) {
-    var mainClippingParents = boundary === 'clippingParents' ? getClippingParents(element) : [].concat(boundary);
-    var clippingParents = [].concat(mainClippingParents, [rootBoundary]);
-    var firstClippingParent = clippingParents[0];
-    var clippingRect = clippingParents.reduce(function (accRect, clippingParent) {
-      var rect = getClientRectFromMixedType(element, clippingParent);
-      var decorations = getDecorations(isHTMLElement(clippingParent) ? clippingParent : getDocumentElement(element));
-      accRect.top = Math.max(rect.top + decorations.top, accRect.top);
-      accRect.right = Math.min(rect.right - decorations.right, accRect.right);
-      accRect.bottom = Math.min(rect.bottom - decorations.bottom, accRect.bottom);
-      accRect.left = Math.max(rect.left + decorations.left, accRect.left);
-      return accRect;
-    }, getClientRectFromMixedType(element, firstClippingParent));
-    clippingRect.width = clippingRect.right - clippingRect.left;
-    clippingRect.height = clippingRect.bottom - clippingRect.top;
-    clippingRect.x = clippingRect.left;
-    clippingRect.y = clippingRect.top;
-    return clippingRect;
-  }
-
-  function getFreshSideObject() {
-    return {
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0
-    };
-  }
-
-  function mergePaddingObject(paddingObject) {
-    return Object.assign({}, getFreshSideObject(), {}, paddingObject);
-  }
-
-  function expandToHashMap(value, keys) {
-    return keys.reduce(function (hashMap, key) {
-      hashMap[key] = value;
-      return hashMap;
-    }, {});
-  }
-
-  function detectOverflow(state, options) {
-    if (options === void 0) {
-      options = {};
-    }
-
-    var _options = options,
-        _options$placement = _options.placement,
-        placement = _options$placement === void 0 ? state.placement : _options$placement,
-        _options$boundary = _options.boundary,
-        boundary = _options$boundary === void 0 ? clippingParents : _options$boundary,
-        _options$rootBoundary = _options.rootBoundary,
-        rootBoundary = _options$rootBoundary === void 0 ? viewport : _options$rootBoundary,
-        _options$elementConte = _options.elementContext,
-        elementContext = _options$elementConte === void 0 ? popper : _options$elementConte,
-        _options$altBoundary = _options.altBoundary,
-        altBoundary = _options$altBoundary === void 0 ? false : _options$altBoundary,
-        _options$padding = _options.padding,
-        padding = _options$padding === void 0 ? 0 : _options$padding;
-    var paddingObject = mergePaddingObject(typeof padding !== 'number' ? padding : expandToHashMap(padding, basePlacements));
-    var altContext = elementContext === popper ? reference : popper;
-    var referenceElement = state.elements.reference;
-    var popperRect = state.rects.popper;
-    var element = state.elements[altBoundary ? altContext : elementContext];
-    var clippingClientRect = getClippingRect(isElement$1(element) ? element : element.contextElement || getDocumentElement(state.elements.popper), boundary, rootBoundary);
-    var referenceClientRect = getBoundingClientRect(referenceElement);
-    var popperOffsets = computeOffsets({
-      reference: referenceClientRect,
-      element: popperRect,
-      strategy: 'absolute',
-      placement: placement
-    });
-    var popperClientRect = rectToClientRect(Object.assign({}, popperRect, {}, popperOffsets));
-    var elementClientRect = elementContext === popper ? popperClientRect : referenceClientRect; // positive = overflowing the clipping rect
-    // 0 or negative = within the clipping rect
-
-    var overflowOffsets = {
-      top: clippingClientRect.top - elementClientRect.top + paddingObject.top,
-      bottom: elementClientRect.bottom - clippingClientRect.bottom + paddingObject.bottom,
-      left: clippingClientRect.left - elementClientRect.left + paddingObject.left,
-      right: elementClientRect.right - clippingClientRect.right + paddingObject.right
-    };
-    var offsetData = state.modifiersData.offset; // Offsets can be applied only to the popper element
-
-    if (elementContext === popper && offsetData) {
-      var offset = offsetData[placement];
-      Object.keys(overflowOffsets).forEach(function (key) {
-        var multiply = [right, bottom].indexOf(key) >= 0 ? 1 : -1;
-        var axis = [top, bottom].indexOf(key) >= 0 ? 'y' : 'x';
-        overflowOffsets[key] += offset[axis] * multiply;
-      });
-    }
-
-    return overflowOffsets;
-  }
-
   /*:: type OverflowsMap = { [ComputedPlacement]: number }; */
 
   /*;; type OverflowsMap = { [key in ComputedPlacement]: number }; */
@@ -3899,13 +3960,20 @@
         _options$allowedAutoP = _options.allowedAutoPlacements,
         allowedAutoPlacements = _options$allowedAutoP === void 0 ? placements : _options$allowedAutoP;
     var variation = getVariation(placement);
-    var placements$1 = (variation ? flipVariations ? variationPlacements : variationPlacements.filter(function (placement) {
+    var placements$1 = variation ? flipVariations ? variationPlacements : variationPlacements.filter(function (placement) {
       return getVariation(placement) === variation;
-    }) : basePlacements).filter(function (placement) {
-      return allowedAutoPlacements.indexOf(placement) >= 0;
-    }); // $FlowFixMe: Flow seems to have problems with two array unions...
+    }) : basePlacements; // $FlowFixMe
 
-    var overflows = placements$1.reduce(function (acc, placement) {
+    var allowedPlacements = placements$1.filter(function (placement) {
+      return allowedAutoPlacements.indexOf(placement) >= 0;
+    });
+
+    if (allowedPlacements.length === 0) {
+      allowedPlacements = placements$1;
+    } // $FlowFixMe: Flow seems to have problems with two array unions...
+
+
+    var overflows = allowedPlacements.reduce(function (acc, placement) {
       acc[placement] = detectOverflow(state, {
         placement: placement,
         boundary: boundary,
@@ -4097,7 +4165,7 @@
     var popperOffsets = state.modifiersData.popperOffsets;
     var referenceRect = state.rects.reference;
     var popperRect = state.rects.popper;
-    var tetherOffsetValue = typeof tetherOffset === 'function' ? tetherOffset(Object.assign({}, state.rects, {
+    var tetherOffsetValue = typeof tetherOffset === 'function' ? tetherOffset(Object.assign(Object.assign({}, state.rects), {}, {
       placement: state.placement
     })) : tetherOffset;
     var data = {
@@ -4300,7 +4368,7 @@
       isReferenceHidden: isReferenceHidden,
       hasPopperEscaped: hasPopperEscaped
     };
-    state.attributes.popper = Object.assign({}, state.attributes.popper, {
+    state.attributes.popper = Object.assign(Object.assign({}, state.attributes.popper), {}, {
       'data-popper-reference-hidden': isReferenceHidden,
       'data-popper-escaped': hasPopperEscaped
     });
@@ -4327,7 +4395,7 @@
    */
 
   var NAME$6 = 'dropdown';
-  var VERSION$6 = '3.2.0';
+  var VERSION$6 = '3.2.2';
   var DATA_KEY$6 = 'coreui.dropdown';
   var EVENT_KEY$6 = "." + DATA_KEY$6;
   var DATA_API_KEY$6 = '.data-api';
@@ -4376,7 +4444,7 @@
     display: 'dynamic',
     popperConfig: null
   };
-  var DefaultType$2 = {
+  var DefaultType$3 = {
     offset: '(array|function)',
     flip: 'boolean',
     boundary: '(string|element)',
@@ -4538,7 +4606,7 @@
       this._inHeader = this._detectHeader();
 
       if (this._popper) {
-        this._popper.scheduleUpdate();
+        this._popper.update();
       }
     } // Private
     ;
@@ -4597,15 +4665,21 @@
     _proto._getOffset = function _getOffset() {
       var _this2 = this;
 
-      var offset = {};
+      var offset = [];
 
       if (typeof this._config.offset === 'function') {
-        offset.fn = function (data) {
-          data.offsets = _objectSpread2(_objectSpread2({}, data.offsets), _this2._config.offset(data.offsets, _this2._element) || {});
-          return data;
+        offset = function offset(_ref3) {
+          var placement = _ref3.placement,
+              reference = _ref3.reference,
+              popper = _ref3.popper;
+          return _this2._config.offset({
+            placement: placement,
+            reference: reference,
+            popper: popper
+          });
         };
       } else {
-        offset.offset = this._config.offset;
+        offset = this._config.offset;
       }
 
       return offset;
@@ -4631,7 +4705,8 @@
       }; // Disable Popper.js if we have a static display
 
       if (this._config.display === 'static') {
-        popperConfig.modifiers.applyStyle = {
+        popperConfig.modifiers = {
+          name: 'applyStyles',
           enabled: false
         };
       }
@@ -4705,9 +4780,9 @@
 
 
         if ('ontouchstart' in document.documentElement) {
-          var _ref3;
+          var _ref4;
 
-          (_ref3 = []).concat.apply(_ref3, document.body.children).forEach(function (elem) {
+          (_ref4 = []).concat.apply(_ref4, document.body.children).forEach(function (elem) {
             return EventHandler.off(elem, 'mouseover', null, noop());
           });
         }
@@ -4802,7 +4877,7 @@
     }, {
       key: "DefaultType",
       get: function get() {
-        return DefaultType$2;
+        return DefaultType$3;
       }
     }]);
 
@@ -4855,7 +4930,7 @@
    */
 
   var NAME$7 = 'modal';
-  var VERSION$7 = '3.2.0';
+  var VERSION$7 = '3.2.2';
   var DATA_KEY$7 = 'coreui.modal';
   var EVENT_KEY$7 = "." + DATA_KEY$7;
   var DATA_API_KEY$7 = '.data-api';
@@ -4866,7 +4941,7 @@
     focus: true,
     show: true
   };
-  var DefaultType$3 = {
+  var DefaultType$4 = {
     backdrop: '(boolean|string)',
     keyboard: 'boolean',
     focus: 'boolean',
@@ -5048,7 +5123,7 @@
 
     _proto._getConfig = function _getConfig(config) {
       config = _objectSpread2(_objectSpread2({}, Default$5), config);
-      typeCheckConfig(NAME$7, config, DefaultType$3);
+      typeCheckConfig(NAME$7, config, DefaultType$4);
       return config;
     };
 
@@ -5069,6 +5144,8 @@
       this._element.removeAttribute('aria-hidden');
 
       this._element.setAttribute('aria-modal', true);
+
+      this._element.setAttribute('role', 'dialog');
 
       this._element.scrollTop = 0;
 
@@ -5156,6 +5233,8 @@
       this._element.setAttribute('aria-hidden', true);
 
       this._element.removeAttribute('aria-modal');
+
+      this._element.removeAttribute('role');
 
       this._isTransitioning = false;
 
@@ -5249,11 +5328,25 @@
           return;
         }
 
+        var isModalOverflowing = this._element.scrollHeight > document.documentElement.clientHeight;
+
+        if (!isModalOverflowing) {
+          this._element.style.overflowY = 'hidden';
+        }
+
         this._element.classList.add(CLASS_NAME_STATIC);
 
-        var modalTransitionDuration = getTransitionDurationFromElement(this._element);
+        var modalTransitionDuration = getTransitionDurationFromElement(this._dialog);
+        EventHandler.off(this._element, TRANSITION_END);
         EventHandler.one(this._element, TRANSITION_END, function () {
           _this9._element.classList.remove(CLASS_NAME_STATIC);
+
+          if (!isModalOverflowing) {
+            EventHandler.one(_this9._element, TRANSITION_END, function () {
+              _this9._element.style.overflowY = '';
+            });
+            emulateTransitionEnd(_this9._element, modalTransitionDuration);
+          }
         });
         emulateTransitionEnd(this._element, modalTransitionDuration);
 
@@ -5593,13 +5686,13 @@
    */
 
   var NAME$8 = 'tooltip';
-  var VERSION$8 = '3.2.0';
+  var VERSION$8 = '3.2.2';
   var DATA_KEY$8 = 'coreui.tooltip';
   var EVENT_KEY$8 = "." + DATA_KEY$8;
   var CLASS_PREFIX = 'bs-tooltip';
   var BSCLS_PREFIX_REGEX = new RegExp("(^|\\s)" + CLASS_PREFIX + "\\S+", 'g');
   var DISALLOWED_ATTRIBUTES = ['sanitize', 'whiteList', 'sanitizeFn'];
-  var DefaultType$4 = {
+  var DefaultType$5 = {
     animation: 'boolean',
     template: 'string',
     title: '(string|element|function)',
@@ -5608,7 +5701,7 @@
     html: 'boolean',
     selector: '(string|boolean)',
     placement: '(string|function)',
-    offset: '(number|string|function)',
+    offset: '(array|function)',
     container: '(string|element|boolean)',
     boundary: '(string|element)',
     sanitize: 'boolean',
@@ -5632,7 +5725,7 @@
     html: false,
     selector: false,
     placement: 'top',
-    offset: 0,
+    offset: [0, 0],
     container: false,
     boundary: 'scrollParent',
     sanitize: true,
@@ -5713,11 +5806,11 @@
 
       if (event) {
         var dataKey = this.constructor.DATA_KEY;
-        var context = Data.getData(event.target, dataKey);
+        var context = Data.getData(event.delegateTarget, dataKey);
 
         if (!context) {
-          context = new this.constructor(event.target, this._getDelegateConfig());
-          Data.setData(event.target, dataKey, context);
+          context = new this.constructor(event.delegateTarget, this._getDelegateConfig());
+          Data.setData(event.delegateTarget, dataKey, context);
         }
 
         context._activeTrigger.click = !context._activeTrigger.click;
@@ -5894,7 +5987,7 @@
 
     _proto.update = function update() {
       if (this._popper !== null) {
-        this._popper.scheduleUpdate();
+        this._popper.update();
       }
     } // Protected
     ;
@@ -5999,20 +6092,41 @@
     } // _addAttachmentClass(attachment) {
     //   this.getTipElement().classList.add(`${CLASS_PREFIX}-${attachment}`)
     // }
+    // _getOffset() {
+    //   const offset = {}
+    //   if (typeof this.config.offset === 'function') {
+    //     offset.fn = data => {
+    //       data.offsets = {
+    //         ...data.offsets,
+    //         ...this.config.offset(data.offsets, this.element) || {}
+    //       }
+    //       return data
+    //     }
+    //   } else {
+    //     offset.offset = this.config.offset
+    //   }
+    //   return offset
+    // }
     ;
 
     _proto._getOffset = function _getOffset() {
       var _this4 = this;
 
-      var offset = {};
+      var offset = [];
 
       if (typeof this.config.offset === 'function') {
-        offset.fn = function (data) {
-          data.offsets = _objectSpread2(_objectSpread2({}, data.offsets), _this4.config.offset(data.offsets, _this4.element) || {});
-          return data;
+        offset = function offset(_ref3) {
+          var placement = _ref3.placement,
+              reference = _ref3.reference,
+              popper = _ref3.popper;
+          return _this4.config.offset({
+            placement: placement,
+            reference: reference,
+            popper: popper
+          });
         };
       } else {
-        offset.offset = this.config.offset;
+        offset = this.config.offset;
       }
 
       return offset;
@@ -6084,11 +6198,11 @@
 
     _proto._enter = function _enter(event, context) {
       var dataKey = this.constructor.DATA_KEY;
-      context = context || Data.getData(event.target, dataKey);
+      context = context || Data.getData(event.delegateTarget, dataKey);
 
       if (!context) {
-        context = new this.constructor(event.target, this._getDelegateConfig());
-        Data.setData(event.target, dataKey, context);
+        context = new this.constructor(event.delegateTarget, this._getDelegateConfig());
+        Data.setData(event.delegateTarget, dataKey, context);
       }
 
       if (event) {
@@ -6117,11 +6231,11 @@
 
     _proto._leave = function _leave(event, context) {
       var dataKey = this.constructor.DATA_KEY;
-      context = context || Data.getData(event.target, dataKey);
+      context = context || Data.getData(event.delegateTarget, dataKey);
 
       if (!context) {
-        context = new this.constructor(event.target, this._getDelegateConfig());
-        Data.setData(event.target, dataKey, context);
+        context = new this.constructor(event.delegateTarget, this._getDelegateConfig());
+        Data.setData(event.delegateTarget, dataKey, context);
       }
 
       if (event) {
@@ -6211,7 +6325,6 @@
 
     _proto._cleanTipClass = function _cleanTipClass() {
       var tip = this.getTipElement();
-      console.log(this.tip);
       var tabClass = tip.getAttribute('class').match(BSCLS_PREFIX_REGEX);
 
       if (tabClass !== null && tabClass.length > 0) {
@@ -6245,7 +6358,6 @@
       this.show();
       this.config.animation = initConfigAnimation;
     } // Static
-    // Static
     ;
 
     Tooltip.jQueryInterface = function jQueryInterface(config) {
@@ -6309,7 +6421,7 @@
     }, {
       key: "DefaultType",
       get: function get() {
-        return DefaultType$4;
+        return DefaultType$5;
       }
     }]);
 
@@ -6344,7 +6456,7 @@
    */
 
   var NAME$9 = 'popover';
-  var VERSION$9 = '3.2.0';
+  var VERSION$9 = '3.2.2';
   var DATA_KEY$9 = 'coreui.popover';
   var EVENT_KEY$9 = "." + DATA_KEY$9;
   var CLASS_PREFIX$1 = 'bs-popover';
@@ -6357,7 +6469,7 @@
     template: '<div class="popover" role="tooltip">' + '<div class="popover-arrow"></div>' + '<h3 class="popover-header"></h3>' + '<div class="popover-body"></div></div>'
   });
 
-  var DefaultType$5 = _objectSpread2(_objectSpread2({}, Tooltip.DefaultType), {}, {
+  var DefaultType$6 = _objectSpread2(_objectSpread2({}, Tooltip.DefaultType), {}, {
     content: '(string|element|function)'
   });
 
@@ -6410,12 +6522,12 @@
 
       this.setElementContent(SelectorEngine.findOne(SELECTOR_CONTENT, tip), content);
       tip.classList.remove(CLASS_NAME_FADE$2, CLASS_NAME_SHOW$5);
-    };
+    } // Private
+    ;
 
     _proto._addAttachmentClass = function _addAttachmentClass(attachment) {
       this.getTipElement().classList.add(CLASS_PREFIX$1 + "-" + attachment);
-    } // Private
-    ;
+    };
 
     _proto._getContent = function _getContent() {
       return this.element.getAttribute('data-content') || this.config.content;
@@ -6498,7 +6610,7 @@
     }, {
       key: "DefaultType",
       get: function get() {
-        return DefaultType$5;
+        return DefaultType$6;
       }
     }]);
 
@@ -6532,7 +6644,7 @@
    */
 
   var NAME$a = 'scrollspy';
-  var VERSION$a = '3.2.0';
+  var VERSION$a = '3.2.2';
   var DATA_KEY$a = 'coreui.scrollspy';
   var EVENT_KEY$a = "." + DATA_KEY$a;
   var DATA_API_KEY$8 = '.data-api';
@@ -6541,7 +6653,7 @@
     method: 'auto',
     target: ''
   };
-  var DefaultType$6 = {
+  var DefaultType$7 = {
     offset: 'number',
     method: 'string',
     target: '(string|element)'
@@ -6573,7 +6685,7 @@
       this._element = element;
       this._scrollElement = element.tagName === 'BODY' ? window : element;
       this._config = this._getConfig(config);
-      this._selector = this._config.target + " " + SELECTOR_NAV_LINKS + "," + (this._config.target + " " + SELECTOR_LIST_ITEMS + ",") + (this._config.target + " ." + CLASS_NAME_DROPDOWN_ITEM);
+      this._selector = this._config.target + " " + SELECTOR_NAV_LINKS + ", " + this._config.target + " " + SELECTOR_LIST_ITEMS + ", " + this._config.target + " ." + CLASS_NAME_DROPDOWN_ITEM;
       this._offsets = [];
       this._targets = [];
       this._activeTarget = null;
@@ -6603,12 +6715,8 @@
       this._scrollHeight = this._getScrollHeight();
       var targets = SelectorEngine.find(this._selector);
       targets.map(function (element) {
-        var target;
         var targetSelector = getSelectorFromElement(element);
-
-        if (targetSelector) {
-          target = SelectorEngine.findOne(targetSelector);
-        }
+        var target = targetSelector ? SelectorEngine.findOne(targetSelector) : null;
 
         if (target) {
           var targetBCR = target.getBoundingClientRect();
@@ -6658,7 +6766,7 @@
         config.target = "#" + id;
       }
 
-      typeCheckConfig(NAME$a, config, DefaultType$6);
+      typeCheckConfig(NAME$a, config, DefaultType$7);
       return config;
     };
 
@@ -8174,21 +8282,24 @@
    */
 
   var NAME$b = 'sidebar';
-  var VERSION$b = '3.2.0';
+  var VERSION$b = '3.2.2';
   var DATA_KEY$b = 'coreui.sidebar';
   var EVENT_KEY$b = "." + DATA_KEY$b;
   var DATA_API_KEY$9 = '.data-api';
   var Default$9 = {
+    activeLinksExact: true,
     breakpoints: {
       xs: 'c-sidebar-show',
       sm: 'c-sidebar-sm-show',
       md: 'c-sidebar-md-show',
       lg: 'c-sidebar-lg-show',
-      xl: 'c-sidebar-xl-show'
+      xl: 'c-sidebar-xl-show',
+      xxl: 'c-sidebar-xxl-show'
     },
     dropdownAccordion: true
   };
-  var DefaultType$7 = {
+  var DefaultType$8 = {
+    activeLinksExact: 'boolean',
     breakpoints: 'object',
     dropdownAccordion: '(string|boolean)'
   };
@@ -8287,7 +8398,9 @@
         }
       };
 
+      var transitionDuration = getTransitionDurationFromElement(this._element);
       EventHandler.one(this._element, TRANSITION_END, complete);
+      emulateTransitionEnd(this._element, transitionDuration);
     };
 
     _proto.close = function close(breakpoint) {
@@ -8322,7 +8435,9 @@
         }
       };
 
+      var transitionDuration = getTransitionDurationFromElement(this._element);
       EventHandler.one(this._element, TRANSITION_END, complete);
+      emulateTransitionEnd(this._element, transitionDuration);
     };
 
     _proto.toggle = function toggle(breakpoint) {
@@ -8481,6 +8596,10 @@
           continue; // text node
         }
 
+        if (element.nodeType === 8) {
+          continue; // comment node
+        }
+
         if (!filter || filter(element)) {
           siblings.push(element);
         } // eslint-disable-next-line no-cond-assign
@@ -8505,7 +8624,9 @@
 
 
       if (Default$9.dropdownAccordion === true) {
-        this._getAllSiblings(toggler.parentElement).forEach(function (element) {
+        this._getAllSiblings(toggler.parentElement, function (element) {
+          return Boolean(element.classList.contains(CLASS_NAME_NAV_DROPDOWN));
+        }).forEach(function (element) {
           if (element !== toggler.parentNode) {
             if (element.classList.contains(CLASS_NAME_NAV_DROPDOWN)) {
               element.classList.remove(CLASS_NAME_SHOW$6);
@@ -8584,7 +8705,21 @@
           currentUrl = currentUrl.slice(0, -1);
         }
 
-        if (element.href === currentUrl) {
+        var dataAttributes = element.closest(SELECTOR_NAVIGATION_CONTAINER).dataset;
+
+        if (typeof dataAttributes.activeLinksExact !== 'undefined') {
+          Default$9.activeLinksExact = JSON.parse(dataAttributes.activeLinksExact);
+        }
+
+        if (Default$9.activeLinksExact && element.href === currentUrl) {
+          element.classList.add(CLASS_NAME_ACTIVE$4); // eslint-disable-next-line unicorn/prefer-spread
+
+          Array.from(_this4._getParents(element, SELECTOR_NAV_DROPDOWN$1)).forEach(function (element) {
+            element.classList.add(CLASS_NAME_SHOW$6);
+          });
+        }
+
+        if (!Default$9.activeLinksExact && element.href.startsWith(currentUrl)) {
           element.classList.add(CLASS_NAME_ACTIVE$4); // eslint-disable-next-line unicorn/prefer-spread
 
           Array.from(_this4._getParents(element, SELECTOR_NAV_DROPDOWN$1)).forEach(function (element) {
@@ -8691,7 +8826,7 @@
     }, {
       key: "DefaultType",
       get: function get() {
-        return DefaultType$7;
+        return DefaultType$8;
       }
     }]);
 
@@ -8735,7 +8870,7 @@
    */
 
   var NAME$c = 'tab';
-  var VERSION$c = '3.2.0';
+  var VERSION$c = '3.2.2';
   var DATA_KEY$c = 'coreui.tab';
   var EVENT_KEY$c = "." + DATA_KEY$c;
   var DATA_API_KEY$a = '.data-api';
@@ -8962,7 +9097,7 @@
    */
 
   var NAME$d = 'toast';
-  var VERSION$d = '3.2.0';
+  var VERSION$d = '3.2.2';
   var DATA_KEY$d = 'coreui.toast';
   var EVENT_KEY$d = "." + DATA_KEY$d;
   var EVENT_CLICK_DISMISS$1 = "click.dismiss" + EVENT_KEY$d;
@@ -8974,7 +9109,7 @@
   var CLASS_NAME_HIDE = 'hide';
   var CLASS_NAME_SHOW$8 = 'show';
   var CLASS_NAME_SHOWING = 'showing';
-  var DefaultType$8 = {
+  var DefaultType$9 = {
     animation: 'boolean',
     autohide: 'boolean',
     delay: 'number'
@@ -8982,7 +9117,7 @@
   var Default$a = {
     animation: true,
     autohide: true,
-    delay: 500
+    delay: 5000
   };
   var SELECTOR_DATA_DISMISS$1 = '[data-dismiss="toast"]';
   /**
@@ -9014,6 +9149,8 @@
       if (showEvent.defaultPrevented) {
         return;
       }
+
+      this._clearTimeout();
 
       if (this._config.animation) {
         this._element.classList.add(CLASS_NAME_FADE$5);
@@ -9079,8 +9216,7 @@
     };
 
     _proto.dispose = function dispose() {
-      clearTimeout(this._timeout);
-      this._timeout = null;
+      this._clearTimeout();
 
       if (this._element.classList.contains(CLASS_NAME_SHOW$8)) {
         this._element.classList.remove(CLASS_NAME_SHOW$8);
@@ -9105,6 +9241,11 @@
       EventHandler.on(this._element, EVENT_CLICK_DISMISS$1, SELECTOR_DATA_DISMISS$1, function () {
         return _this3.hide();
       });
+    };
+
+    _proto._clearTimeout = function _clearTimeout() {
+      clearTimeout(this._timeout);
+      this._timeout = null;
     } // Static
     ;
 
@@ -9140,7 +9281,7 @@
     }, {
       key: "DefaultType",
       get: function get() {
-        return DefaultType$8;
+        return DefaultType$9;
       }
     }, {
       key: "Default",
@@ -9691,9 +9832,30 @@
     }
   });
 
+  (function () {
+    if (typeof window.CustomEvent === "function" || // In Safari, typeof CustomEvent == 'object' but it otherwise works fine
+    this.CustomEvent.toString().indexOf('CustomEventConstructor') > -1) {
+      return;
+    }
+
+    function CustomEvent(event, params) {
+      params = params || {
+        bubbles: false,
+        cancelable: false,
+        detail: undefined
+      };
+      var evt = document.createEvent('CustomEvent');
+      evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+      return evt;
+    }
+
+    CustomEvent.prototype = window.Event.prototype;
+    window.CustomEvent = CustomEvent;
+  })();
+
   /**
    * --------------------------------------------------------------------------
-   * CoreUI (v3.2.0): index.umd.js
+   * CoreUI (v3.3.0): index.umd.js
    * Licensed under MIT (https://coreui.io/license)
    * --------------------------------------------------------------------------
    */

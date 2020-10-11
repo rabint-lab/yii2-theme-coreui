@@ -19,7 +19,7 @@ $bundleBaseUrl .= '/dist/';
             <!--                <use xlink:href="--><? //= $bundleBaseUrl; ?><!--coreui-pro.svg#signet"></use>-->
             <!--            </svg>-->
         </div>
-        <?= (\rabint\helpers\user::can('loginToBackend'))?$this->render('element/_menu', ['this', $this]):$this->render('element/_menu_dashboard', ['this', $this]) ?>
+        <?= ($this->context instanceof \rabint\controllers\AdminController)?$this->render('element/_menu', ['this', $this]):$this->render('element/_menu_dashboard', ['this', $this]) ?>
         <button class="c-sidebar-minimizer c-class-toggler" type="button" data-target="_parent"
                 data-class="c-sidebar-unfoldable"></button>
     </div>
