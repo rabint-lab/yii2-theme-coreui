@@ -15,6 +15,9 @@ foreach ((array)$modules as $item) {
 
     if (method_exists($moduleClass, 'adminMenu')) {
         $menu = call_user_func([$moduleClass, 'adminMenu']);
+        if(empty($menu)){
+            continue;
+        }
         if (isset($menu['label'])) {
             $ModuleMenu[] = $menu;
         } else {
