@@ -1,11 +1,12 @@
 <?php
 
-use rabint\pm\models\Message;
-
-$items = Message::find()
+if(!class_exists(' \rabint\pm\models\Message')){
+    return;
+}
+$items = \rabint\pm\models\Message::find()
     ->andWhere([
         'receiver_id' => \rabint\helpers\user::id(),
-        'read' => Message::READ_STATUS_NO,
+        'read' => \rabint\pm\models\Message::READ_STATUS_NO,
     ])->limit(10);
 //if ($this->timeLimit) {
 //    $items->andWhere(['>=', 'created_at', time() - $this->timeLimit]);

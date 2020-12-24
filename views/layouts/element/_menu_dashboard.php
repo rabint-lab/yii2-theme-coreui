@@ -2,7 +2,11 @@
 
 use rabint\themes\codebase\widgets\Menu;
 
-$menusConf = include Yii::getAlias("@app/config/menus.php");
+$menusConf = [];
+$menuFile = Yii::getAlias("@app/config/menus.php");
+if (file_exists($menuFile)) {
+    $menusConf = include Yii::getAlias("@app/config/menus.php");
+}
 
 $premenusConf = [];//\rabint\helpers\collection::getValue($menusConf, 'preadmin', []);
 $menusConf = \rabint\helpers\collection::getValue($menusConf, 'dashboard', []);
@@ -11,11 +15,11 @@ $menusConf = \rabint\helpers\collection::getValue($menusConf, 'dashboard', []);
 $ModuleMenu = [];
 $modules = include(Yii::getAlias('@config/modules.php'));
 foreach ((array)$modules as $item) {
-    $moduleClass = $item['class'];
+    $moduleClass = $item['class']??'';
 
     if (method_exists($moduleClass, 'dashboardMenu')) {
         $menu = call_user_func([$moduleClass, 'dashboardMenu']);
-        if(empty($menu)){
+        if (empty($menu)) {
             continue;
         }
         if (isset($menu['label'])) {

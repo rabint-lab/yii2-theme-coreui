@@ -4,7 +4,7 @@ $bundleBaseUrl = $this->getAssetManager()->getBundle('\rabint\theme\coreui\Theme
 $bundleBaseUrl .= '/dist/';
 
 if (\rabint\helpers\user::isGuest()) {
-    $userAvatar = Yii::$app->Attachment->baseUrl . '/example/avatars/avatar15.jpg';
+    $userAvatar = Yii::getAlias('@web') . '/img/avatar15.jpg';
     $userDisplayName = \Yii::t('app', 'کاربر میهمان');
 } else {
     $userAvatar = Yii::$app->user->identity->userProfile->getAvatar(Yii::$app->Attachment->baseUrl . '/example/avatars/avatar15.jpg');
@@ -60,30 +60,32 @@ if (\rabint\helpers\user::isGuest()) {
                 </svg>
                 <?= \Yii::t('app', 'خروج از حساب کاربری'); ?>
             </a>
-<!--            <div class="dropdown-header bg-light py-2">-->
-<!--                <strong>--><?//= \Yii::t('app', 'اطلاعیه ها'); ?><!--</strong>-->
-<!--            </div>-->
-<!--            <a class="dropdown-item" href="#">-->
-<!--                <svg class="c-icon mfe-2">-->
-<!--                    <use xlink:href="--><?//= $bundleBaseUrl; ?><!--free.svg#cil-bell"></use>-->
-<!--                </svg>-->
-<!--                Updates<span class="badge badge-info mfs-auto">42</span></a><a class="dropdown-item"-->
-<!--                                                                               href="#">-->
-<!--                <svg class="c-icon mfe-2">-->
-<!--                    <use xlink:href="--><?//= $bundleBaseUrl; ?><!--free.svg#cil-envelope-open"></use>-->
-<!--                </svg>-->
-<!--                Messages<span class="badge badge-success mfs-auto">42</span></a><a class="dropdown-item"-->
-<!--                                                                                   href="#">-->
-<!--                <svg class="c-icon mfe-2">-->
-<!--                    <use xlink:href="--><?//= $bundleBaseUrl; ?><!--free.svg#cil-task"></use>-->
-<!--                </svg>-->
-<!--                Tasks<span class="badge badge-danger mfs-auto">42</span></a><a class="dropdown-item"-->
-<!--                                                                               href="#">-->
-<!--                <svg class="c-icon mfe-2">-->
-<!--                    <use xlink:href="--><?//= $bundleBaseUrl; ?><!--free.svg#cil-comment-square"></use>-->
-<!--                </svg>-->
-<!--                Comments<span class="badge badge-warning mfs-auto">42</span>-->
-<!--            </a>-->
+            <!--            <div class="dropdown-header bg-light py-2">-->
+            <!--                <strong>--><? //= \Yii::t('app', 'اطلاعیه ها'); ?><!--</strong>-->
+            <!--            </div>-->
+            <!--            <a class="dropdown-item" href="#">-->
+            <!--                <svg class="c-icon mfe-2">-->
+            <!--                    <use xlink:href="--><? //= $bundleBaseUrl; ?><!--free.svg#cil-bell"></use>-->
+            <!--                </svg>-->
+            <!--                Updates<span class="badge badge-info mfs-auto">42</span></a><a class="dropdown-item"-->
+            <!--                                                                               href="#">-->
+            <!--                <svg class="c-icon mfe-2">-->
+            <!--                    <use xlink:href="-->
+            <? //= $bundleBaseUrl; ?><!--free.svg#cil-envelope-open"></use>-->
+            <!--                </svg>-->
+            <!--                Messages<span class="badge badge-success mfs-auto">42</span></a><a class="dropdown-item"-->
+            <!--                                                                                   href="#">-->
+            <!--                <svg class="c-icon mfe-2">-->
+            <!--                    <use xlink:href="--><? //= $bundleBaseUrl; ?><!--free.svg#cil-task"></use>-->
+            <!--                </svg>-->
+            <!--                Tasks<span class="badge badge-danger mfs-auto">42</span></a><a class="dropdown-item"-->
+            <!--                                                                               href="#">-->
+            <!--                <svg class="c-icon mfe-2">-->
+            <!--                    <use xlink:href="-->
+            <? //= $bundleBaseUrl; ?><!--free.svg#cil-comment-square"></use>-->
+            <!--                </svg>-->
+            <!--                Comments<span class="badge badge-warning mfs-auto">42</span>-->
+            <!--            </a>-->
         </div>
     <?php } else { ?>
         <div class="dropdown-menu dropdown-menu-right pt-0">
