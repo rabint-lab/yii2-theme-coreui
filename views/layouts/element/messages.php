@@ -1,12 +1,19 @@
 <?php
 
-if(!class_exists(' \rabint\pm\models\Message')){
+
+if (!class_exists('\rabint\pm\models\Message')) {
     return;
 }
-$items = \rabint\pm\models\Message::find()
+if(\rabint\helpers\user::isGuest()){
+    return;
+}
+
+use rabint\pm\models\Message;
+
+$items = Message::find()
     ->andWhere([
         'receiver_id' => \rabint\helpers\user::id(),
-        'read' => \rabint\pm\models\Message::READ_STATUS_NO,
+        'read' => Message::READ_STATUS_NO,
     ])->limit(10);
 //if ($this->timeLimit) {
 //    $items->andWhere(['>=', 'created_at', time() - $this->timeLimit]);
