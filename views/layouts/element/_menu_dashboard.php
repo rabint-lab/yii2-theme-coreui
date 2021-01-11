@@ -35,7 +35,7 @@ $TopMenu = [
         'label' => Yii::t('rabint', 'پیشخوان کاربری'),
         'icon' => '<i class="fas fa-tachometer-alt "></i>',
         'visible' => !\rabint\helpers\user::isGuest(),
-        'url' => ['/user/default/index'],
+        'url' => config('dashboardRoute',['/user/default/index']),
     ],
 ];
 

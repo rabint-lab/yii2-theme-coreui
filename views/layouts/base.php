@@ -8,8 +8,12 @@ use yii\helpers\Html;
 
 \rabint\theme\coreui\ThemeAsset::register($this);
 $bodyClass = $bodyClass ?? '';
-if($this->context instanceof \rabint\controllers\AdminController){
-    $bodyClass.=' c-dark-theme';
+if (isset($_COOKIE['coreui_is_dark'])) {
+    if ($_COOKIE['coreui_is_dark'] == 'yes') {
+        $bodyClass .= ' c-dark-theme';
+    }
+} elseif ($this->context instanceof \rabint\controllers\AdminController) {
+    $bodyClass .= ' c-dark-theme';
 }
 ?>
 
@@ -22,8 +26,8 @@ if($this->context instanceof \rabint\controllers\AdminController){
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <?php
-    $scheme = config('base_url.scheme','http');
-    if($scheme=='https'){
+    $scheme = config('base_url.scheme', 'http');
+    if ($scheme == 'https') {
         echo '<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">';
     }
     ?>

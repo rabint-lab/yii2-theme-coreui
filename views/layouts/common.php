@@ -69,17 +69,16 @@ $bundleBaseUrl .= '/dist/';
 
             <ul class="c-header-nav mfs-auto">
                 <li class="c-header-nav-item px-3 c-d-legacy-none">
-<!--                    <button class="c-class-toggler c-header-nav-btn" type="button" id="header-tooltip"-->
-<!--                            data-target="body"-->
-<!--                            data-class="c-dark-theme" data-toggle="c-tooltip" data-placement="bottom"-->
-<!--                            title="Toggle Light/Dark Mode">-->
-<!--                        <svg class="c-icon c-d-dark-none">-->
-<!--                            <use xlink:href="--><?//= $bundleBaseUrl; ?><!--free.svg#cil-moon"></use>-->
-<!--                        </svg>-->
-<!--                        <svg class="c-icon c-d-default-none">-->
-<!--                            <use xlink:href="--><?//= $bundleBaseUrl; ?><!--free.svg#cil-sun"></use>-->
-<!--                        </svg>-->
-<!--                    </button>-->
+                    <button class="c-header-nav-btn setDarkTheme" type="button" id="header-tooltip"
+                             data-toggle="c-tooltip" data-placement="bottom"
+                            title="تغییر حالت شب و روز">
+                        <svg class="c-icon c-d-dark-none">
+                            <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-moon"></use>
+                        </svg>
+                        <svg class="c-icon c-d-default-none">
+                            <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-sun"></use>
+                        </svg>
+                    </button>
                 </li>
             </ul>
             <ul class="c-header-nav">

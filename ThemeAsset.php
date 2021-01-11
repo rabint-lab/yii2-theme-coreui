@@ -23,6 +23,7 @@ class ThemeAsset extends AssetBundle
         "dist/js/coreui.bundle.js",
         "js/app.js",
         'js/jquery.cookie.js',
+        "js/custom.js",
     ];
     public $depends = [
         'yii\web\JqueryAsset',

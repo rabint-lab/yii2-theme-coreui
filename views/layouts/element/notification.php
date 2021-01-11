@@ -2,6 +2,10 @@
 if (!class_exists('\rabint\notify\models\Notification')) {
     return;
 }
+if(\rabint\helpers\user::isGuest()){
+    return;
+}
+
 if(\rabint\helpers\user::can('manager')){
 
 }
@@ -15,7 +19,7 @@ if(\rabint\helpers\user::can('manager')){
         ['user_id' => NULL],
     ]);
 }else{
-    $notifyModel->andWhere(['user_id' => \rabint\helpers\user::id()],);
+    $notifyModel->andWhere(['user_id' => \rabint\helpers\user::id()]);
 }
 $notify = $notifyModel->count('*');
 ?>
