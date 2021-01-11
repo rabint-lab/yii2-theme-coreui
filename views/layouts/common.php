@@ -19,7 +19,17 @@ $bundleBaseUrl .= '/dist/';
             <!--                <use xlink:href="--><? //= $bundleBaseUrl; ?><!--coreui-pro.svg#signet"></use>-->
             <!--            </svg>-->
         </div>
-        <?= ($this->context instanceof \rabint\controllers\AdminController)?$this->render('element/_menu', ['this', $this]):$this->render('element/_menu_dashboard', ['this', $this]) ?>
+        <?php
+        if ($this->context instanceof \rabint\controllers\AdminController) {
+            echo $this->render('element/_menu_admin', ['this', $this]);
+        } elseif ($this->context instanceof \rabint\controllers\PanelController) {
+            echo $this->render('element/_menu_dashboard', ['this', $this]);
+        } else {
+            echo $this->render('element/_menu', ['this', $this]);
+        }
+
+
+        ?>
         <button class="c-sidebar-minimizer c-class-toggler" type="button" data-target="_parent"
                 data-class="c-sidebar-unfoldable"></button>
     </div>
@@ -52,25 +62,27 @@ $bundleBaseUrl .= '/dist/';
                             <?= \Yii::t('app', 'کاربران'); ?>
                         </a>
                     </li>
+                <?php } ?>
+                <?php if (\rabint\helpers\user::can('administrator')) { ?>
                     <li class="c-header-nav-item px-3">
                         <a class="c-header-nav-link" href="<?= \rabint\helpers\uri::to('/option/option/index') ?>">
-                            <?= \Yii::t('app', 'اختیارات'); ?>
+                            <?= \Yii::t('app', 'تنظیمات'); ?>
                         </a>
                     </li>
                 <?php } ?>
-                <?php if (\rabint\helpers\user::can('doEncrypt')) { ?>
-                <li class="c-header-nav-item px-3">
-                    <a class="c-header-nav-link" data-toggle='modal' data-target='#modalPush' href="#modalPush">
-                        <?= \Yii::t('app', 'رمز گشا'); ?>
-                    </a>
-                </li>
+                <?php if (false && \rabint\helpers\user::can('doEncrypt')) { ?>
+                    <li class="c-header-nav-item px-3">
+                        <a class="c-header-nav-link" data-toggle='modal' data-target='#modalPush' href="#modalPush">
+                            <?= \Yii::t('app', 'رمز گشا'); ?>
+                        </a>
+                    </li>
                 <?php } ?>
             </ul>
 
             <ul class="c-header-nav mfs-auto">
                 <li class="c-header-nav-item px-3 c-d-legacy-none">
                     <button class="c-header-nav-btn setDarkTheme" type="button" id="header-tooltip"
-                             data-toggle="c-tooltip" data-placement="bottom"
+                            data-toggle="c-tooltip" data-placement="bottom"
                             title="تغییر حالت شب و روز">
                         <svg class="c-icon c-d-dark-none">
                             <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-moon"></use>
@@ -82,27 +94,27 @@ $bundleBaseUrl .= '/dist/';
                 </li>
             </ul>
             <ul class="c-header-nav">
-                <?= $this->render('element/notification', ['this', $this,'bundleBaseUrl'=>$bundleBaseUrl]) ?>
-                <?= $this->render('element/messages', ['this', $this,'bundleBaseUrl'=>$bundleBaseUrl]) ?>
+                <?= $this->render('element/notification', ['this', $this, 'bundleBaseUrl' => $bundleBaseUrl]) ?>
+                <?= $this->render('element/messages', ['this', $this, 'bundleBaseUrl' => $bundleBaseUrl]) ?>
 
                 <?= $this->render('element/_userDropDown', ['this', $this]) ?>
-                <?php if(false){
+                <?php if (false) {
 
-                echo $this->render('element/task', ['this', $this,'bundleBaseUrl'=>$bundleBaseUrl]) ?>
-                <button class="c-header-toggler c-class-toggler mfe-md-3" type="button" data-target="#aside"
-                        data-class="c-sidebar-show">
-                    <svg class="c-icon c-icon-lg">
-                        <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-applications-settings"></use>
-                    </svg>
-                </button>
-                <?php }?>
+                    echo $this->render('element/task', ['this', $this, 'bundleBaseUrl' => $bundleBaseUrl]) ?>
+                    <button class="c-header-toggler c-class-toggler mfe-md-3" type="button" data-target="#aside"
+                            data-class="c-sidebar-show">
+                        <svg class="c-icon c-icon-lg">
+                            <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-applications-settings"></use>
+                        </svg>
+                    </button>
+                <?php } ?>
             </ul>
             <div class="c-subheader justify-content-between px-3">
                 <?php
                 $items = isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [];
                 if (\rabint\helpers\user::can('loginToBackend')) {
                     array_unshift($items, ['label' => \Yii::t('app', 'پنل مدیریت'), 'url' => ['/admin']]);
-                }else{
+                } else {
                     array_unshift($items, ['label' => \Yii::t('app', 'پنل کاربری'), 'url' => ['/user/default/index']]);
                 }
                 echo \yii\bootstrap4\Breadcrumbs::widget([
@@ -136,14 +148,14 @@ $bundleBaseUrl .= '/dist/';
                             </li>
                         </ul>
 
-                    <a class="c-subheader-nav-link" href="<?= \rabint\helpers\uri::to('/admin') ?>">
-                        <svg class="c-icon">
-                            <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-graph"></use>
-                        </svg> &nbsp;<?= \Yii::t('app', 'پنل کاربری'); ?></a>
-                    <a class="c-subheader-nav-link" href="<?= \rabint\helpers\uri::to('/option/option/index') ?>">
-                        <svg class="c-icon">
-                            <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-settings"></use>
-                        </svg> &nbsp;<?= \Yii::t('app', 'اختیارات'); ?></a>
+                        <a class="c-subheader-nav-link" href="<?= \rabint\helpers\uri::to('/admin') ?>">
+                            <svg class="c-icon">
+                                <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-graph"></use>
+                            </svg> &nbsp;<?= \Yii::t('app', 'پنل کاربری'); ?></a>
+                        <a class="c-subheader-nav-link" href="<?= \rabint\helpers\uri::to('/option/option/index') ?>">
+                            <svg class="c-icon">
+                                <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-settings"></use>
+                            </svg> &nbsp;<?= \Yii::t('app', 'تنظیمات'); ?></a>
                     <?php } ?>
 
                 </div>
@@ -161,8 +173,9 @@ $bundleBaseUrl .= '/dist/';
         </div>
 
         <footer class="c-footer">
-            <div><a href="<?=\rabint\helpers\uri::home(true)?>"><?= config('app_name', 'داشبورد') ?></a> © 2020</div>
-            <div class="mfs-auto"><?=\Yii::t('app','طراحی شده توسط');?> <a href="#"><?=\Yii::t('app','شرکت داده پردازی حنان توس');?></a></div>
+            <div><a href="<?= \rabint\helpers\uri::home(true) ?>"><?= config('app_name', 'داشبورد') ?></a> © 2020</div>
+            <div class="mfs-auto"><?= \Yii::t('app', 'طراحی شده توسط'); ?> <a
+                        href="#"><?= \Yii::t('app', 'شرکت داده پردازی حنان توس'); ?></a></div>
         </footer>
     </div>
 <?= $this->render('element/decryptModal'); ?>

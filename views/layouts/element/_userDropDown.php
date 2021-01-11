@@ -1,13 +1,14 @@
 <?php
 
 $bundleBaseUrl = $this->getAssetManager()->getBundle('\rabint\theme\coreui\ThemeAsset')->baseUrl;
+$bundleWebUrl = $bundleBaseUrl;
 $bundleBaseUrl .= '/dist/';
 
 if (\rabint\helpers\user::isGuest()) {
-    $userAvatar = Yii::getAlias('@web') . '/img/avatar15.jpg';
+    $userAvatar = $bundleWebUrl . '/img/avatar.jpg';
     $userDisplayName = \Yii::t('app', 'کاربر میهمان');
 } else {
-    $userAvatar = Yii::$app->user->identity->userProfile->getAvatar(Yii::$app->Attachment->baseUrl . '/example/avatars/avatar15.jpg');
+    $userAvatar = Yii::$app->user->identity->userProfile->getAvatar( $bundleWebUrl . '/img/avatar.jpg');
     $userDisplayName = \rabint\helpers\user::name();
 }
 ?>
