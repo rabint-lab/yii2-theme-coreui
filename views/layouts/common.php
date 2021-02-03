@@ -42,11 +42,7 @@ $bundleBaseUrl .= '/dist/';
                     <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-menu"></use>
                 </svg>
             </button>
-            <a class="c-header-brand d-lg-none c-header-brand-sm-up-center" href="#">
-                <svg width="118" height="46" alt="CoreUI Logo">
-                    <use xlink:href="<?= $bundleBaseUrl; ?>coreui-pro.svg#full"></use>
-                </svg>
-            </a>
+            <a class="c-header-brand d-lg-none c-header-brand-sm-up-center" href="#"></a>
             <button class="c-header-toggler c-class-toggler mfs-3 d-md-down-none" type="button" data-target="#sidebar"
                     data-class="c-sidebar-lg-show" responsive="true">
                 <svg class="c-icon c-icon-lg">

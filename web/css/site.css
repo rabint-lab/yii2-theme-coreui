@@ -92,3 +92,14 @@ div[data-action='modal-include-components'] > .modal-dialog > .modal-content > .
     height: auto;
     width: inherit;
 }
+
+.c-sidebar-brand-full{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.c-sidebar-nav-dropdown.c-show {
+    width: inherit;
+    border-right: 5px solid rgba(200, 200, 200, 0.35);
+    /* margin-right: 8px; */
+}
