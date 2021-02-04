@@ -3,7 +3,16 @@
 use rabint\themes\codebase\widgets\Menu;
 
 $menusConf = [];
-$menusConf = include Yii::getAlias("@app/config/menus.php");
+
+$appMenuConf = Yii::getAlias("@app/config/menus.php");
+if(file_exists($appMenuConf)){
+	$menusConf = include $appMenuConf;
+}else{
+	$appMenuConf = Yii::getAlias("@base/config/menus.php");
+	if(file_exists($appMenuConf)){
+		$menusConf = include $appMenuConf;
+	}
+}
 
 $premenusConf = [];//\rabint\helpers\collection::getValue($menusConf, 'preadmin', []);
 $menusConf = \rabint\helpers\collection::getValue($menusConf, 'dashboard', []);

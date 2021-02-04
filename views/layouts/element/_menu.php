@@ -1,8 +1,18 @@
 <?php
 
 use rabint\themes\codebase\widgets\Menu;
+$menusConf=[];
 
-$menusConf = include Yii::getAlias("@app/config/menus.php");
+$appMenuConf = Yii::getAlias("@app/config/menus.php");
+if(file_exists($appMenuConf)){
+	$menusConf = include $appMenuConf;
+}else{
+	$appMenuConf = Yii::getAlias("@base/config/menus.php");
+	if(file_exists($appMenuConf)){
+		$menusConf = include $appMenuConf;
+	}
+}
+
 
 $menusConf = \rabint\helpers\collection::getValue($menusConf, 'main', []);
 
@@ -101,9 +111,35 @@ function echoCoreUiMenu($Items, $level = 0)
     <ul class="c-sidebar-nav">
         <?php
         echoCoreUiMenu($AllItems);
-        if (\rabint\helpers\user::can('administrator')) {
-            ?>
-        <?php } ?>
+        if(false && \rabint\helpers\user::can('administrator')){
+        ?>
+            <li class="c-sidebar-nav-divider"></li>
+            <li class="c-sidebar-nav-title">وضعیت سرویس</li>
+            <li class="c-sidebar-nav-item px-3 c-d-compact-none c-d-minimized-none">
+                <div class="text-uppercase mb-1"><small><b>CPU Usage</b></small></div>
+                <div class="progress progress-xs">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: 25%" aria-valuenow="25"
+                         aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <small class="text-muted">348 Processes. 1/4 Cores.</small>
+            </li>
+            <li class="c-sidebar-nav-item px-3 c-d-compact-none c-d-minimized-none">
+                <div class="text-uppercase mb-1"><small><b>Memory Usage</b></small></div>
+                <div class="progress progress-xs">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: 70%" aria-valuenow="70"
+                         aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <small class="text-muted">11444GB/16384MB</small>
+            </li>
+            <li class="c-sidebar-nav-item px-3 mb-3 c-d-compact-none c-d-minimized-none">
+                <div class="text-uppercase mb-1"><small><b>SSD 1 Usage</b></small></div>
+                <div class="progress progress-xs">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: 95%" aria-valuenow="95"
+                         aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <small class="text-muted">243GB/256GB</small>
+            </li>
+        <?php }?>
     </ul>
 <?php
 /** */

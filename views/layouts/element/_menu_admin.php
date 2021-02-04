@@ -2,7 +2,17 @@
 
 use rabint\themes\codebase\widgets\Menu;
 
-$menusConf = include Yii::getAlias("@app/config/menus.php");
+$menusConf=[];
+
+$appMenuConf = Yii::getAlias("@app/config/menus.php");
+if(file_exists($appMenuConf)){
+	$menusConf = include $appMenuConf;
+}else{
+	$appMenuConf = Yii::getAlias("@base/config/menus.php");
+	if(file_exists($appMenuConf)){
+		$menusConf = include $appMenuConf;
+	}
+}
 
 $premenusConf = [];//\rabint\helpers\collection::getValue($menusConf, 'preadmin', []);
 $menusConf = \rabint\helpers\collection::getValue($menusConf, 'admin', []);
