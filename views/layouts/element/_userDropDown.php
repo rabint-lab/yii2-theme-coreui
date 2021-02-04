@@ -26,7 +26,7 @@ if (\rabint\helpers\user::isGuest()) {
         <div class="dropdown-menu dropdown-menu-right pt-0">
 
             <div class="dropdown-header bg-light py-2"><strong><?= \Yii::t('app', 'حساب کاربری'); ?></strong></div>
-            <a class="dropdown-item" href="<?= \rabint\helpers\uri::to(['/user/default/index']); ?>">
+            <a class="dropdown-item" href="<?= \rabint\helpers\uri::to(\rabint\helpers\uri::dashboardRoute()); ?>">
                 <svg class="c-icon mfe-2">
                     <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-settings"></use>
                 </svg>

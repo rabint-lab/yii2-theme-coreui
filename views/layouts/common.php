@@ -111,7 +111,7 @@ $bundleBaseUrl .= '/dist/';
                 if (\rabint\helpers\user::can('loginToBackend')) {
                     array_unshift($items, ['label' => \Yii::t('app', 'پنل مدیریت'), 'url' => ['/admin']]);
                 } else {
-                    array_unshift($items, ['label' => \Yii::t('app', 'پنل کاربری'), 'url' => ['/user/default/index']]);
+                    array_unshift($items, ['label' => \Yii::t('app', 'پنل کاربری'), 'url' => \rabint\helpers\uri::dashboardRoute()]);
                 }
                 echo \yii\bootstrap4\Breadcrumbs::widget([
                     'tag' => 'ol',
@@ -144,7 +144,7 @@ $bundleBaseUrl .= '/dist/';
                             </li>
                         </ul>
 
-                        <a class="c-subheader-nav-link" href="<?= \rabint\helpers\uri::to('/admin') ?>">
+                        <a class="c-subheader-nav-link" href="<?= \rabint\helpers\uri::to(\rabint\helpers\uri::dashboardRoute()) ?>">
                             <svg class="c-icon">
                                 <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-graph"></use>
                             </svg> &nbsp;<?= \Yii::t('app', 'پنل کاربری'); ?></a>
