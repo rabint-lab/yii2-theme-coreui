@@ -1,5 +1,9 @@
 <?php
+
+use rabint\helpers\uri;
+
 $bundleBaseUrl = $this->getAssetManager()->getBundle('\rabint\theme\coreui\ThemeAsset')->baseUrl;
+$bundleImgUrl = $bundleBaseUrl. '/img/';
 $bundleBaseUrl .= '/dist/';
 ?>
 <?php $this->beginContent('@vendor/rabint/theme-coreui/views/layouts/base.php'); ?>
@@ -7,11 +11,14 @@ $bundleBaseUrl .= '/dist/';
 
     <div class="c-sidebar c-sidebar-dark c-sidebar-fixed c-sidebar-lg-show" id="sidebar">
         <div class="c-sidebar-brand d-md-down-none">
-            <h3 class="c-sidebar-brand-full">
-                <i class="fas fa-chess-queen"></i>
+            <h5 class="c-sidebar-brand-full">
+                <!-- <i class="fas fa-chess-queen"></i> -->
                 <?= config('app_name', 'داشبورد') ?>
-            </h3>
-            <i class="fas fa-chess-queen c-sidebar-brand-minimized"></i>
+            </h5>
+                <img class="admin-panel" src="<?=$bundleImgUrl;?>/img-panel.jpg" alt="" >
+                <img class="logo-admin-panel" src="<?=uri::home();?>/img/logo-panel-admin.png" alt="" >
+                <!-- <img class="admin-panel-sm" src="<?=uri::home();?>/img/img-panel-sm.jpg" alt="" style="display: none;"> -->
+            <!-- <i class="fas fa-chess-queen c-sidebar-brand-minimized"></i> -->
             <!--            <svg class="c-sidebar-brand-full" width="118" height="46" alt="CoreUI Logo">-->
             <!--                <use xlink:href="--><? //= $bundleBaseUrl; ?><!--coreui-pro.svg#full"></use>-->
             <!--            </svg>-->
@@ -111,7 +118,7 @@ $bundleBaseUrl .= '/dist/';
                 if (\rabint\helpers\user::can('loginToBackend')) {
                     array_unshift($items, ['label' => \Yii::t('app', 'پنل مدیریت'), 'url' => ['/admin']]);
                 } else {
-                    array_unshift($items, ['label' => \Yii::t('app', 'پنل کاربری'), 'url' => \rabint\helpers\uri::dashboardRoute()]);
+                    array_unshift($items, ['label' => \Yii::t('app', 'پنل کاربری'), 'url' => ['/user/default/index']]);
                 }
                 echo \yii\bootstrap4\Breadcrumbs::widget([
                     'tag' => 'ol',
@@ -144,7 +151,7 @@ $bundleBaseUrl .= '/dist/';
                             </li>
                         </ul>
 
-                        <a class="c-subheader-nav-link" href="<?= \rabint\helpers\uri::to(\rabint\helpers\uri::dashboardRoute()) ?>">
+                        <a class="c-subheader-nav-link" href="<?= \rabint\helpers\uri::to('/admin') ?>">
                             <svg class="c-icon">
                                 <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-graph"></use>
                             </svg> &nbsp;<?= \Yii::t('app', 'پنل کاربری'); ?></a>

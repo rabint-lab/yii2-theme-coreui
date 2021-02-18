@@ -33,5 +33,6 @@ class ThemeAsset extends AssetBundle
         'rabint\assets\CommonAsset',
         'rabint\assets\FontAwesomeAsset',
         'rabint\assets\font\VazirAsset',
+        'rabint\assets\font\SahelAsset',
     ];
 }
