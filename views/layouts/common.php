@@ -11,12 +11,12 @@ $bundleBaseUrl .= '/dist/';
 
     <div class="c-sidebar c-sidebar-dark c-sidebar-fixed c-sidebar-lg-show" id="sidebar">
         <div class="c-sidebar-brand d-md-down-none">
+            <img class="logo-admin-panel" src="<?=uri::home();?>/img/logo-panel-admin.png" alt="" >
+            <img class="admin-panel" src="<?=$bundleImgUrl;?>/img-panel.jpg" alt="" >
             <h5 class="c-sidebar-brand-full">
                 <!-- <i class="fas fa-chess-queen"></i> -->
                 <?= config('app_name', 'داشبورد') ?>
             </h5>
-                <img class="admin-panel" src="<?=$bundleImgUrl;?>/img-panel.jpg" alt="" >
-                <img class="logo-admin-panel" src="<?=uri::home();?>/img/logo-panel-admin.png" alt="" >
                 <!-- <img class="admin-panel-sm" src="<?=uri::home();?>/img/img-panel-sm.jpg" alt="" style="display: none;"> -->
             <!-- <i class="fas fa-chess-queen c-sidebar-brand-minimized"></i> -->
             <!--            <svg class="c-sidebar-brand-full" width="118" height="46" alt="CoreUI Logo">-->

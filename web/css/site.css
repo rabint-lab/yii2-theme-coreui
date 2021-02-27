@@ -1,5 +1,5 @@
 *, boby {
-    font-family: vazir,sahel,-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", tahoma, Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-family: vazir_fd,sahel,-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", tahoma, Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 .grid-view .summary {
@@ -121,17 +121,19 @@ img.admin-panel{
 }
 
 img.logo-admin-panel {
-    width: 27% !important;
+    width: 19% !important;
     position: absolute;
-    left: 1rem;
+    right: .9rem;
+    top: .4rem;
 }
 
 .c-sidebar-unfoldable .logo-admin-panel{
-    width: 50% !important;
+    width: 41% !important;
+    top: 0;
 }
 
 .c-sidebar-unfoldable:hover .logo-admin-panel{
-    width: 27% !important;
+    width: 19% !important;
 }
 
 .c-sidebar-brand-full {
@@ -140,7 +142,48 @@ img.logo-admin-panel {
     /* white-space: nowrap; */
     position: absolute;
     color: #5d5d5d;
-    top: 1.7rem;
+    top: 6rem;
     font-size: 1rem;
     text-shadow: 1px 1px 3px #9c9c9c;
+    box-shadow: inset 0 0px 21px 12px #f7f3f0;
+    padding: .5rem;
+    width: 100%;
+    text-align: center;
+}
+
+.table .badge {
+    font-size: 90% !important;
+    font-weight: 400;
+}
+
+.bg-form-login {
+    background: url('/img/bg-01.jpg') no-repeat;
+    background-position: top right;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: fixed;
+    z-index: -99999;
+    background-size: cover;
+}
+
+.color-c {
+    color: #417dbb;
+}
+
+.logo-images img {
+    max-width: 90px;
+    border-radius: 3px;
+    box-shadow: 0px 1px 4px 0px rgb(0 0 0 / 10%);
+    /* margin-left: -0.5rem; */
+}
+
+.logo-images {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+a:hover {
+    text-decoration: none;
 }
