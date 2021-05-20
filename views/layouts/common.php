@@ -118,7 +118,8 @@ $bundleBaseUrl .= '/dist/';
                 if (\rabint\helpers\user::can('loginToBackend')) {
                     array_unshift($items, ['label' => \Yii::t('app', 'پنل مدیریت'), 'url' => ['/admin']]);
                 } else {
-                    array_unshift($items, ['label' => \Yii::t('app', 'پنل کاربری'), 'url' => ['/user/default/index']]);
+                    $dashboardLink = config('dashboardRoute','/user/default/index');
+                    array_unshift($items, ['label' => \Yii::t('app', 'پنل کاربری'), 'url' => [$dashboardLink]]);
                 }
                 echo \yii\bootstrap4\Breadcrumbs::widget([
                     'tag' => 'ol',

@@ -18,4 +18,12 @@ $(function () {
             $.cookie('coreui_is_dark', 'yes', { expires: 30 ,path: '/'});
         }
     });
+    
+    $(document).on('input', function(e) {
+        var type=$(e.target).val();
+        type=type.replace(/ی/g, "ي");
+        type=type.replace(/ك/g, 'ک');
+        type=type.replace(/ة/g, "ه");
+        $(e.target).val(type);
+    });
 });
