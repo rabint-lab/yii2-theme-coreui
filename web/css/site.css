@@ -187,3 +187,81 @@ img.logo-admin-panel {
 a:hover {
     text-decoration: none;
 }
+
+.card{
+    border-radius: .8rem !important;
+}
+
+.c-sidebar-brand-full{
+    color: #ec2708 !important;
+}
+
+.c-sidebar-nav-item .c-sidebar-nav-link.c-active svg{
+    color: #ec2708 !important;
+}
+
+.page-item.active .page-link{
+    background-color: #ec2708 !important;
+    border-color: #ec2708 !important;
+}
+
+.card.text-white.bg-success{
+    background: #4dbd74 !important;
+    border: 1px solid!important;
+    border-color: #2eb85c!important;
+}
+
+.card.text-white.bg-success .btn.btn-secondary.btn-block.btn-lg{
+    border-radius: 2rem !important;
+    padding: 0.3rem !important;
+    color: #4f5d73 !important;
+    background-color: #ebedef !important;
+    font-size: .875rem !important;
+}
+
+.card.text-white.bg-danger{
+    background: #f86c6b !important;
+    border: 1px solid!important;
+    border-color: #e55353!important;
+}
+
+.card.text-white.bg-danger .btn.btn-secondary.btn-block.btn-lg{
+    border-radius: 2rem !important;
+    padding: 0.3rem !important;
+    color: #4f5d73 !important;
+    background-color: #ebedef !important;
+    font-size: .875rem !important;
+}
+
+.card.text-white.bg-info{
+    background: #63c2de !important;
+    border: 1px solid!important;
+    border-color: #39f!important;
+}
+
+.card.text-white.bg-info .btn.btn-secondary.btn-block.btn-lg{
+    border-radius: 2rem !important;
+    padding: 0.3rem !important;
+    color: #4f5d73 !important;
+    background-color: #ebedef !important;
+    font-size: .875rem !important;
+}
+
+.card.text-white.bg-warning{
+    background: #ffc107 !important;
+    border: 1px solid!important;
+    border-color: #f9b115!important;
+}
+
+.card.text-white.bg-warning .btn.btn-secondary.btn-block.btn-lg{
+    border-radius: 2rem !important;
+    padding: 0.3rem !important;
+    color: #4f5d73 !important;
+    background-color: #ebedef !important;
+    font-size: .875rem !important;
+}
+
+.c-sidebar.c-sidebar-light .c-sidebar-nav-link:hover, .c-sidebar.c-sidebar-light .c-sidebar-nav-dropdown-toggle:hover{
+    background: #20a8d8 !important;
+    color: #fff;
+}
