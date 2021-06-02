@@ -177,7 +177,7 @@ $bundleBaseUrl .= '/dist/';
         </div>
 
         <footer class="c-footer">
-            <div><a href="<?= \rabint\helpers\uri::home(true) ?>"><?= config('app_name', 'داشبورد') ?></a> © 2020</div>
+            <div><a href="<?= \rabint\helpers\uri::home(true) ?>"><?= config('app_name', 'داشبورد') ?></a> © <?= date('Y')?></div>
             <div class="mfs-auto"><?= \Yii::t('app', 'طراحی شده توسط'); ?> <a
                         href="#"><?= \Yii::t('app', 'شرکت داده پردازی حنان توس'); ?></a></div>
         </footer>

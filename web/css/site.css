@@ -265,3 +265,7 @@ a:hover {
     background: #20a8d8 !important;
     color: #fff;
 }
+
+.pagination {
+    overflow: auto;
+}
