@@ -23,9 +23,9 @@ $(function () {
 
 $(document).on('keyup', function(e) {
     var type=$(e.target).val();
-    type=type.replace(/ي/g, "ی");
-    type=type.replace(/ک/g, 'ك');
-    type=type.replace(/ه/g, "ه");
+        type=type.replace(/ی/g, "ي");
+        type=type.replace(/ك/g, 'ک');
+        type=type.replace(/ة/g, "ه");
     $(e.target).val(type);
     $('.select2-search__field').trigger("input").trigger("change");
 });
