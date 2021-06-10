@@ -23,7 +23,7 @@ $(function () {
 
 $(document).on('keyup', function(e) {
     var type=$(e.target).val();
-        type=type.replace(/ی/g, "ي");
+        type=type.replace(/ي/g, "ی");
         type=type.replace(/ك/g, 'ک');
         type=type.replace(/ة/g, "ه");
     $(e.target).val(type);
