@@ -3,7 +3,8 @@ if (!class_exists('\rabint\notify\models\Notification')) {
     return;
 }
 
-$notifyModel = \rabint\notify\models\Notification::find()->where(['user_id' => NULL, 'read' =>\rabint\notify\models\Notification::READ_STATUS_NO]);
+$userId = \rabint\helpers\user::id();
+$notifyModel = \rabint\notify\models\Notification::find()->where(['user_id' => $userId, 'read' =>\rabint\notify\models\Notification::READ_STATUS_NO]);
 $notify = $notifyModel->count('*');
 ?>
 <!-- Notifications -->

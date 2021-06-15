@@ -97,7 +97,14 @@ $bundleBaseUrl .= '/dist/';
                 </li>
             </ul>
             <ul class="c-header-nav">
-                <?= $this->render('element/notification', ['this', $this, 'bundleBaseUrl' => $bundleBaseUrl]) ?>
+                <?php
+                if(class_exists('\app\modules\notification\models\Notification')){
+                    echo $this->render('element/new_notification', ['this', $this, 'bundleBaseUrl' => $bundleBaseUrl]);
+                }else{
+                    echo $this->render('element/notification', ['this', $this, 'bundleBaseUrl' => $bundleBaseUrl]);
+                }
+
+                ?>
                 <?= $this->render('element/messages', ['this', $this, 'bundleBaseUrl' => $bundleBaseUrl]) ?>
 
                 <?= $this->render('element/_userDropDown', ['this', $this]) ?>
