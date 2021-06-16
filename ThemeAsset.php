@@ -3,6 +3,7 @@
 namespace rabint\theme\coreui;
 
 use rabint\assets\font\VazirAsset;
+use rabint\cheatsheet\Time;
 use yii\bootstrap4\BootstrapPluginAsset;
 use yii\web\AssetBundle;
 
@@ -35,4 +36,12 @@ class ThemeAsset extends AssetBundle
         'rabint\assets\font\VazirAsset',
         'rabint\assets\font\SahelAsset',
     ];
+    public static  function getConfig($key){
+        $defaultConfigs = [
+            'copyright' => 'شرکت داده پردازی حنان توس', // [mobile,email,mobileEmail,username]
+            'copyright_link' => 'http://hanantoos.ir', // [mobile,email,mobileEmail,username]
+
+        ];
+        return config('params.theme.' . $key, $defaultConfigs[$key]);
+    }
 }
