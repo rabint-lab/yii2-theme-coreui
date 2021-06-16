@@ -11,7 +11,8 @@ if(\rabint\helpers\user::can('manager')){
 }
 
 $notifyModel = \app\modules\notification\models\Notification::find()
-    ->andWhere([ 'seen' => \app\modules\notification\models\Notification::SEEN_STATUS_NO]);
+    ->andWhere([ 'seen' => \app\modules\notification\models\Notification::SEEN_STATUS_NO])
+    ->andWhere([ 'channel' => 'system']);
 
 if(\rabint\helpers\user::can('manager')){
     $notifyModel->andWhere(['OR' ,
