@@ -63,7 +63,7 @@ $notify = $notifyModel->count('*');
             </a>
         <?php endforeach; ?>
         <a class="dropdown-item text-center border-top"
-           href="<?= \rabint\helpers\uri::to(['/notify/default/index']) ?>"><strong><?= \Yii::t('rabint', 'همه اعلانات'); ?></strong>
+           href="<?= \rabint\helpers\uri::to(['/notification/default/index']) ?>"><strong><?= \Yii::t('rabint', 'همه اعلانات'); ?></strong>
         </a>
 
     </div>

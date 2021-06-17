@@ -185,8 +185,12 @@ $bundleBaseUrl .= '/dist/';
 
         <footer class="c-footer">
             <div><a href="<?= \rabint\helpers\uri::home(true) ?>"><?= config('app_name', 'داشبورد') ?></a> © <?= date('Y')?></div>
-            <div class="mfs-auto"><?= \Yii::t('app', 'طراحی شده توسط'); ?> <a
-                        href="#"><?= \Yii::t('app', 'شرکت داده پردازی حنان توس'); ?></a></div>
+            <div class="mfs-auto">
+                <?php if(\rabint\theme\coreui\ThemeAsset::getConfig('copyright')):?>
+                <?= \Yii::t('app', 'طراحی شده توسط'); ?>
+                <a href="<?=\rabint\theme\coreui\ThemeAsset::getConfig('copyright_link')?>"><?= \rabint\theme\coreui\ThemeAsset::getConfig('copyright') ?></a>
+                <?php endif; ?>
+            </div>
         </footer>
     </div>
 <?= $this->render('element/decryptModal'); ?>
