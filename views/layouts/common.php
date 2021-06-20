@@ -3,7 +3,7 @@
 use rabint\helpers\uri;
 
 $bundleBaseUrl = $this->getAssetManager()->getBundle('\rabint\theme\coreui\ThemeAsset')->baseUrl;
-$bundleImgUrl = $bundleBaseUrl. '/img/';
+$bundleImgUrl = $bundleBaseUrl . '/img/';
 $bundleBaseUrl .= '/dist/';
 ?>
 <?php $this->beginContent('@vendor/rabint/theme-coreui/views/layouts/base.php'); ?>
@@ -11,13 +11,13 @@ $bundleBaseUrl .= '/dist/';
 
     <div class="c-sidebar c-sidebar-dark c-sidebar-fixed c-sidebar-lg-show" id="sidebar">
         <div class="c-sidebar-brand d-md-down-none">
-            <img class="logo-admin-panel" src="<?=uri::home();?>/img/logo-panel-admin.png" alt="" >
-            <img class="admin-panel" src="<?=$bundleImgUrl;?>/img-panel.jpg" alt="" >
+            <img class="logo-admin-panel" src="<?= uri::home(); ?>/img/logo-panel-admin.png" alt="">
+            <img class="admin-panel" src="<?= $bundleImgUrl; ?>/img-panel.jpg" alt="">
             <h5 class="c-sidebar-brand-full">
                 <!-- <i class="fas fa-chess-queen"></i> -->
                 <?= config('app_name', 'داشبورد') ?>
             </h5>
-                <!-- <img class="admin-panel-sm" src="<?=uri::home();?>/img/img-panel-sm.jpg" alt="" style="display: none;"> -->
+            <!-- <img class="admin-panel-sm" src="<?= uri::home(); ?>/img/img-panel-sm.jpg" alt="" style="display: none;"> -->
             <!-- <i class="fas fa-chess-queen c-sidebar-brand-minimized"></i> -->
             <!--            <svg class="c-sidebar-brand-full" width="118" height="46" alt="CoreUI Logo">-->
             <!--                <use xlink:href="--><? //= $bundleBaseUrl; ?><!--coreui-pro.svg#full"></use>-->
@@ -59,20 +59,41 @@ $bundleBaseUrl .= '/dist/';
 
             <ul class="c-header-nav d-md-down-none">
                 <?php if (\rabint\helpers\user::can('administrator')) { ?>
-
                     <li class="c-header-nav-item px-3">
                         <a class="c-header-nav-link" href="<?= \rabint\helpers\uri::to('/user/admin/index') ?>">
                             <?= \Yii::t('app', 'کاربران'); ?>
                         </a>
                     </li>
-                <?php } ?>
-                <?php if (\rabint\helpers\user::can('administrator')) { ?>
                     <li class="c-header-nav-item px-3">
                         <a class="c-header-nav-link" href="<?= \rabint\helpers\uri::to('/option/option/index') ?>">
                             <?= \Yii::t('app', 'تنظیمات'); ?>
                         </a>
                     </li>
                 <?php } ?>
+
+                <?php
+                if (\rabint\helpers\user::can('loginToBackend')) { ?>
+                    <li class="c-header-nav-item px-3">
+                        <a class="c-header-nav-link" href="<?= \rabint\helpers\uri::to('/admin') ?>">
+                            <?= \Yii::t('app', 'پنل مدیریت'); ?>
+                        </a>
+                    </li>
+                <?php } elseif(!\rabint\helpers\user::isGuest()) { ?>
+                    <li class="c-header-nav-item px-3">
+                        <a class="c-header-nav-link"
+                           href="<?= \rabint\helpers\uri::to(config('dashboardRoute', '/user/default/index')) ?>">
+                            <?= \Yii::t('app', 'پنل کاربری'); ?>
+                        </a>
+                    </li>
+                <?php } else { ?>
+                    <li class="c-header-nav-item px-3">
+                        <a class="c-header-nav-link"
+                           href="<?= \rabint\helpers\uri::to(config('dashboardRoute', '/user/sign-in/login')) ?>">
+                            <?= \Yii::t('app', 'ورود به حساب کاربری'); ?>
+                        </a>
+                    </li>
+                <?php } ?>
+
                 <?php if (false && \rabint\helpers\user::can('doEncrypt')) { ?>
                     <li class="c-header-nav-item px-3">
                         <a class="c-header-nav-link" data-toggle='modal' data-target='#modalPush' href="#modalPush">
@@ -98,9 +119,9 @@ $bundleBaseUrl .= '/dist/';
             </ul>
             <ul class="c-header-nav">
                 <?php
-                if(class_exists('\app\modules\notification\models\Notification')){
+                if (class_exists('\app\modules\notification\models\Notification')) {
                     echo $this->render('element/new_notification', ['this', $this, 'bundleBaseUrl' => $bundleBaseUrl]);
-                }else{
+                } else {
                     echo $this->render('element/notification', ['this', $this, 'bundleBaseUrl' => $bundleBaseUrl]);
                 }
 
@@ -121,14 +142,12 @@ $bundleBaseUrl .= '/dist/';
             </ul>
             <div class="c-subheader justify-content-between px-3">
                 <?php
+
                 $items = isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [];
-                if (\rabint\helpers\user::can('loginToBackend')) {
-                    array_unshift($items, ['label' => \Yii::t('app', 'پنل مدیریت'), 'url' => ['/admin']]);
-                } else {
-                    $dashboardLink = config('dashboardRoute','/user/default/index');
-                    array_unshift($items, ['label' => \Yii::t('app', 'پنل کاربری'), 'url' => [$dashboardLink]]);
-                }
+                array_unshift($items, ['label' => Yii::t('app', 'صفحه نخست'), 'url' => Yii::$app->homeUrl]);
+
                 echo \yii\bootstrap4\Breadcrumbs::widget([
+                    'homeLink' => false,
                     'tag' => 'ol',
                     'options' => ['class' => 'breadcrumb border-0 m-0 px-0 px-md-3'],
                     'links' => $items,
@@ -184,11 +203,12 @@ $bundleBaseUrl .= '/dist/';
         </div>
 
         <footer class="c-footer">
-            <div><a href="<?= \rabint\helpers\uri::home(true) ?>"><?= config('app_name', 'داشبورد') ?></a> © <?= date('Y')?></div>
+            <div><a href="<?= \rabint\helpers\uri::home(true) ?>"><?= config('app_name', 'داشبورد') ?></a>
+                © <?= date('Y') ?></div>
             <div class="mfs-auto">
-                <?php if(\rabint\theme\coreui\ThemeAsset::getConfig('copyright')):?>
-                <?= \Yii::t('app', 'طراحی شده توسط'); ?>
-                <a href="<?=\rabint\theme\coreui\ThemeAsset::getConfig('copyright_link')?>"><?= \rabint\theme\coreui\ThemeAsset::getConfig('copyright') ?></a>
+                <?php if (\rabint\theme\coreui\ThemeAsset::getConfig('copyright')): ?>
+                    <?= \Yii::t('app', 'طراحی شده توسط'); ?>
+                    <a href="<?= \rabint\theme\coreui\ThemeAsset::getConfig('copyright_link') ?>"><?= \rabint\theme\coreui\ThemeAsset::getConfig('copyright') ?></a>
                 <?php endif; ?>
             </div>
         </footer>
