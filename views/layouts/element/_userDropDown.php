@@ -32,7 +32,7 @@ if (\rabint\helpers\user::isGuest()) {
                 </svg>
                 حساب کاربری
             </a>
-            <a class="dropdown-item" href="<?= \rabint\helpers\uri::to(['/user/default/profile']); ?>">
+            <a class="dropdown-item" href="<?= \rabint\helpers\uri::to([\rabint\user\Module::getConfig('profile_action')]); ?>">
                 <svg class="c-icon mfe-2">
                     <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-user"></use>
                 </svg>
