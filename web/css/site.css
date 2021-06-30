@@ -121,10 +121,10 @@ img.admin-panel{
 }
 
 img.logo-admin-panel {
-    width: 19% !important;
+    width: 16.8% !important;
     position: absolute;
-    right: .9rem;
-    top: .4rem;
+    right: 8.5rem;
+    top: 0.4rem;
 }
 
 .c-sidebar-unfoldable .logo-admin-panel{
