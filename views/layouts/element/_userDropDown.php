@@ -47,8 +47,8 @@ if (\rabint\helpers\user::isGuest()) {
                 <svg class="c-icon mfe-2">
                     <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-user"></use>
                 </svg>
-
-                اطلاعات شخصی</a>
+                <?=\Yii::t('app','ویرایش اطلاعات کاربری');?>
+                </a>
 
             <!--            <a class="dropdown-item" href="#">-->
             <!--                <svg class="c-icon mfe-2">-->
