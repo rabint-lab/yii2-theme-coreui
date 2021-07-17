@@ -37,7 +37,7 @@ if (\rabint\helpers\user::isGuest()) {
             </strong></div>
 
 
-            <a class="dropdown-item" href="<?= \rabint\helpers\uri::to(\rabint\helpers\uri::dashboardRoute()); ?>">
+            <a class="dropdown-item" href="<?= \rabint\helpers\uri::to([\rabint\user\Module::getConfig('account_action')]); ?>">
                 <svg class="c-icon mfe-2">
                     <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-settings"></use>
                 </svg>
