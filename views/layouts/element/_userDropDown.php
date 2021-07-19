@@ -37,12 +37,14 @@ if (\rabint\helpers\user::isGuest()) {
             </strong></div>
 
 
+            <?php if(\rabint\user\Module::getConfig('show_account_in_dropdown')): ?>
             <a class="dropdown-item" href="<?= \rabint\helpers\uri::to([\rabint\user\Module::getConfig('account_action')]); ?>">
                 <svg class="c-icon mfe-2">
                     <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-settings"></use>
                 </svg>
                 حساب کاربری
             </a>
+            <?php endif; ?>
             <a class="dropdown-item" href="<?= \rabint\helpers\uri::to([\rabint\user\Module::getConfig('profile_action')]); ?>">
                 <svg class="c-icon mfe-2">
                     <use xlink:href="<?= $bundleBaseUrl; ?>free.svg#cil-user"></use>
